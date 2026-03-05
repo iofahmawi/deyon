@@ -573,14 +573,57 @@
         .empty-state i { font-size: 3rem; color: #cbd5e1; display: block; margin-bottom: 10px; }
         .empty-state p { font-size: 0.95rem; font-weight: 600; margin: 0; }
 
+        #search-bar {
+            display: none;
+            flex: 1;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        #search-bar.active { display: flex; }
+
+        #search-input {
+            flex: 1;
+            height: 36px;
+            padding: 0 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            background: #f8fafc;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        #search-input:focus { border-color: var(--primary); background: white; }
+
+        .btn-search-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 4px;
+        }
+
         #file-input { display: none; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>سجل الديون</h1>
-        <div class="data-actions">
+        <h1 id="header-title">سجل الديون</h1>
+        <div id="search-bar">
+            <input type="text" id="search-input" placeholder="ابحث عن اسم..." oninput="renderSearch(this.value)">
+            <button class="btn-search-close" onclick="closeSearch()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="data-actions" id="header-actions">
+            <button class="btn-data" onclick="openSearch()" style="background:none;border:none;box-shadow:none;padding:6px;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
             <button class="btn-data" onclick="document.getElementById('file-input').click()">
                 <i class="fa-solid fa-file-import"></i> استيراد
             </button>
@@ -1114,6 +1157,37 @@
                 payOverlay.style.paddingTop = '20%';
             }
         });
+    }
+
+    function openSearch() {
+        document.getElementById('header-title').style.display = 'none';
+        document.getElementById('search-bar').classList.add('active');
+        document.getElementById('header-actions').style.display = 'none';
+        setTimeout(() => document.getElementById('search-input').focus(), 50);
+    }
+
+    function closeSearch() {
+        document.getElementById('header-title').style.display = '';
+        document.getElementById('search-bar').classList.remove('active');
+        document.getElementById('header-actions').style.display = '';
+        document.getElementById('search-input').value = '';
+        render();
+    }
+
+    function renderSearch(query) {
+        const q = query.trim().toLowerCase();
+        if (!q) { render(); return; }
+        const filtered = debts.filter(d => d.name.toLowerCase().includes(q));
+        const container = document.getElementById('list-container');
+        container.innerHTML = '';
+        if (!filtered.length) {
+            container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-magnifying-glass"></i><p>لا توجد نتائج</p></div>`;
+            return;
+        }
+        const orig = debts;
+        debts = filtered;
+        render();
+        debts = orig;
     }
 
     render();
