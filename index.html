@@ -481,13 +481,24 @@
         }
 
         #pay-amount {
-            font-size: 1.5rem;
-            font-weight: 900;
+            font-size: 0.9rem;
+            font-weight: 600;
             text-align: center;
             padding-left: 12px !important;
             padding-right: 12px !important;
+        }
+
+        #pay-amount.has-value {
+            font-size: 1.5rem;
+            font-weight: 900;
             color: var(--primary);
             letter-spacing: -0.5px;
+        }
+
+        #pay-amount::placeholder {
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0;
         }
 
         #pay-note {
@@ -607,7 +618,7 @@
                 </div>
             </div>
             <div class="input-wrap">
-                <input type="number" id="pay-amount" inputmode="decimal">
+                <input type="number" id="pay-amount" inputmode="decimal" placeholder="المبلغ">
             </div>
             <div class="input-wrap">
                 <input type="text" id="pay-note" placeholder="ملاحظات" style="text-align:center;padding-right:12px !important;">
@@ -734,6 +745,7 @@
         const debt = debts.find(d => d.id === id);
         document.getElementById('pay-title').innerText = `تسديد — ${debt.name}`;
         document.getElementById('pay-amount').value = '';
+        document.getElementById('pay-amount').classList.remove('has-value');
         document.getElementById('pay-note').value = '';
         const now = new Date();
         document.getElementById('pay-date').value = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
@@ -1086,6 +1098,10 @@
     }
 
     render();
+
+    document.getElementById('pay-amount').addEventListener('input', function() {
+        this.classList.toggle('has-value', this.value !== '');
+    });
 </script>
     <script>
         if ('serviceWorker' in navigator) {
