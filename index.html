@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سجل الديون</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f0f4f8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Deyon">
+    <link rel="apple-touch-icon" href="icon-1024.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: #e2e8f0;
+        }
+
+        @media (display-mode: standalone) {
+            body { padding-top: 1.10cm; }
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-dark);
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 14px;
+            padding-bottom: 90px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── هيدر ─── */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        header h1 {
+            font-size: 1.3rem;
+            margin: 0;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .data-actions { display: flex; gap: 8px; }
+
+        .btn-data {
+            background: var(--card);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .btn-data:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* ─── بانر الإجمالي ─── */
+        .total-banner {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 18px 20px;
+            border-radius: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px rgba(67,97,238,0.22);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .total-banner::after {
+            content: '\f0d6';
+            font-family: 'FontAwesome';
+            position: absolute;
+            left: -10px;
+            bottom: -18px;
+            font-size: 6rem;
+            opacity: 0.08;
+        }
+
+        .total-banner small {
+            font-size: 0.78rem;
+            font-weight: 600;
+            opacity: 0.75;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .total-banner .amount {
+            font-size: 2rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .total-banner .currency {
+            font-size: 0.95rem;
+            font-weight: 600;
+            opacity: 0.8;
+            margin-right: 4px;
+        }
+
+        /* ─── بطاقة الدين ─── */
+        .debt-card {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            transition: box-shadow 0.2s, transform 0.2s;
+            position: relative;
+            overflow: visible;
+        }
+
+        .debt-card:hover {
+            box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+            transform: translateY(-1px);
+        }
+
+        /* اسم الشخص */
+        .card-name-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            background: #eff2ff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .person-name { font-weight: 800; font-size: 0.95rem; }
+
+        /* صف الأرقام الثلاثة */
+        .card-amounts {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .amount-cell {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            text-align: center;
+        }
+
+        .amount-cell .cell-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .amount-cell .cell-value {
+            font-size: 0.92rem;
+            font-weight: 900;
+            color: var(--text-dark);
+        }
+
+        .amount-cell.highlight {
+            background: #ffffff;
+            border-color: var(--border);
+        }
+
+        .amount-cell.highlight .cell-value { color: var(--primary); }
+
+        .amount-cell.done-cell {
+            background: #d1fae5;
+            border-color: #a7f3d0;
+        }
+
+        .amount-cell.done-cell .cell-value { color: var(--success); }
+
+        /* شريط التقدم */
+        .progress-section { margin-bottom: 11px; }
+
+        .progress-track {
+            height: 5px;
+            background: #e8ecf5;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #4cc9f0);
+            border-radius: 10px;
+            transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        .progress-fill.done { background: linear-gradient(90deg, var(--success), #34d399); }
+
+        /* سجل الدفعات */
+        .payment-history {
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin-bottom: 10px;
+            display: none;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 0.78rem;
+            position: relative;
+        }
+
+        .history-item:last-child { border: none; padding-bottom: 0; }
+
+        .history-amount { 
+            font-weight: 800; 
+            color: var(--success); 
+            min-width: 90px; 
+            text-align: right; 
+            padding-right: 21px; 
+            flex-shrink: 0;
+        }
+
+        .history-date { 
+            color: var(--text-muted); 
+            font-size: 0.78rem; 
+            margin-right: auto; 
+        }
+
+        .no-payments { text-align: center; color: var(--text-muted); font-size: 0.76rem; padding: 4px 0; }
+
+        /* أزرار البطاقة */
+        .btn-group { display: flex; gap: 7px; }
+
+        .btn {
+            font-family: inherit;
+            border: none;
+            padding: 9px 11px;
+            border-radius: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.18s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+
+        .btn-pay  { flex: 1; background: #fff; color: var(--primary); border: 1px solid var(--border); }
+        .btn-pay:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .btn-done { flex: 1; background: #d1fae5; color: var(--success); pointer-events: none; border: 1px solid #a7f3d0; }
+
+        .btn-edit { flex: 1; background: #fff; color: var(--text-muted); border: 1px solid var(--border); }
+        .btn-edit:hover { background: #f1f5f9; color: var(--text-dark); }
+
+        .btn-del  { flex: 1; background: #fff; color: var(--danger); border: 1px solid var(--border); }
+        .btn-del:hover { background: var(--danger); color: white; border-color: var(--danger); }
+
+        .menu-wrap { position: relative; }
+
+        .card-menu-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: none;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+            flex-shrink: 0;
+        }
+
+        .card-menu-btn:hover { background: #e2e8f0; color: var(--text-dark); }
+
+        #floating-menu {
+            position: fixed;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+            z-index: 9999;
+            overflow: hidden;
+            display: none;
+            min-width: 130px;
+            animation: fadeIn 0.15s ease;
+        }
+
+        #floating-menu.open { display: block; }
+
+        .card-menu-dropdown.open { display: block; }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: right;
+            color: var(--text-dark);
+            transition: background 0.15s;
+        }
+
+        .menu-item:hover { background: #f8fafc; }
+        .menu-item.danger { color: var(--danger); }
+        .menu-item.danger:hover { background: #fff0f0; }
+        .menu-item + .menu-item { border-top: 1px solid var(--border); }
+
+        /* ─── FAB ─── */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 13px 26px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 6px 22px rgba(67,97,238,0.35);
+            transition: all 0.22s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 999;
+            white-space: nowrap;
+        }
+
+        .fab:hover {
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 10px 28px rgba(67,97,238,0.42);
+        }
+
+        /* ─── مودال ─── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .modal-overlay.active { display: flex; opacity: 1; }
+
+        .modal {
+            background: white;
+            width: 88%;
+            max-width: 320px;
+            border-radius: 18px;
+            padding: 20px 18px 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+            transform: scale(0.93);
+            transition: transform 0.28s cubic-bezier(0.34,1.45,0.64,1);
+        }
+
+        .modal-overlay.active .modal { transform: scale(1); }
+
+        .modal-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .modal-ico {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .modal-ico.add { background: #eff2ff; color: var(--primary); }
+        .modal-ico.pay { background: #d1fae5; color: var(--success); }
+        .modal-ico.del { background: #fff0f0; color: var(--danger); }
+        .modal-ico.edit { background: #f1f5f9; color: var(--text-dark); }
+        .modal-ico.edit-pay { background: #fff7ed; color: #f97316; }
+
+        .history-item { cursor: default; transition: background 0.2s; border-radius: 6px; }
+        .history-item.pressing { background: #f1f5f9; }
+
+        .modal-title    { font-size: 1rem; font-weight: 800; margin: 0; color: var(--text-dark); }
+        .modal-subtitle { font-size: 0.72rem; color: var(--text-muted); margin: 2px 0 0; }
+
+        input, textarea { user-select: text; -webkit-user-select: text; }
+
+        .input-wrap { position: relative; margin-bottom: 10px; }
+
+        .input-wrap i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            pointer-events: none;
+        }
+
+        .modal input {
+            width: 100%;
+            height: 41px;
+            padding: 0 34px 0 12px;
+            background: #f8fafc;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            font-size: 0.9rem;
+            font-family: inherit;
+            font-weight: 600;
+            color: var(--text-dark);
+            transition: all 0.2s;
+        }
+
+        .modal input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(67,97,238,0.1);
+        }
+
+        #pay-amount {
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-align: center;
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        #pay-note {
+            padding-right: 12px !important;
+        }
+
+
+
+        .modal-del-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0 0 14px;
+            line-height: 1.6;
+        }
+
+        .modal-btns { display: flex; gap: 8px; margin-top: 12px; }
+
+        .mbtn {
+            flex: 1;
+            padding: 0;
+            height: 41px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+
+        .mbtn-cancel { background: #f1f5f9; color: var(--text-dark); border: 1px solid var(--border); }
+        .mbtn-cancel:hover { background: #e2e8f0; }
+
+        .mbtn-ok  { background: var(--primary); color: white; box-shadow: 0 3px 10px rgba(67,97,238,0.2); }
+        .mbtn-ok:hover  { background: var(--primary-dark); transform: translateY(-1px); }
+
+        .mbtn-del { background: var(--danger); color: white; box-shadow: 0 3px 10px rgba(239,68,68,0.2); }
+        .mbtn-del:hover { background: #dc2626; transform: translateY(-1px); }
+
+        .debt-card.dragging {
+            opacity: 0.5;
+            transform: scale(0.98);
+            box-shadow: 0 8px 24px rgba(67,97,238,0.18);
+            border-color: var(--primary);
+        }
+
+        .debt-card.drag-over {
+            border-color: var(--primary);
+            border-style: dashed;
+        }
+
+        .debt-card.long-press {
+            transform: scale(1.02);
+            box-shadow: 0 8px 24px rgba(67,97,238,0.2);
+            border-color: var(--primary);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 3rem; color: #cbd5e1; display: block; margin-bottom: 10px; }
+        .empty-state p { font-size: 0.95rem; font-weight: 600; margin: 0; }
+
+        #file-input { display: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>سجل الديون</h1>
+        <div class="data-actions">
+            <button class="btn-data" onclick="document.getElementById('file-input').click()">
+                <i class="fa-solid fa-file-import"></i> استيراد
+            </button>
+            <button class="btn-data" onclick="exportData()">
+                <i class="fa-solid fa-file-export"></i> تصدير
+            </button>
+            <input type="file" id="file-input" onchange="importData(event)" accept=".json">
+        </div>
+    </header>
+
+    <div class="total-banner">
+        <small>إجمالي الديون المتبقية</small>
+        <div class="amount" id="grand-total">0</div>
+    </div>
+
+    <div id="list-container"></div>
+
+    <button class="fab" onclick="openAddModal()">
+        <i class="fa-solid fa-plus"></i> إضافة دين
+    </button>
+
+    <div class="modal-overlay" id="add-modal-overlay" onclick="closeModals()" style="align-items:flex-start; padding-top:20%">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-top">
+                <div class="modal-ico add"><i class="fa-solid fa-user-plus"></i></div>
+                <div>
+                    <p class="modal-title">دين جديد</p>
+                    <p class="modal-subtitle">أضف اسم الشخص والمبلغ</p>
+                </div>
+            </div>
+            <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" id="name" placeholder="اسم الشخص"></div>
+            <div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" id="amount" placeholder="المبلغ الكلي" inputmode="decimal"></div>
+            <div class="input-wrap"><i class="fa-solid fa-tag"></i><input type="text" id="debt-note" placeholder="مثلاً: دين سيارة" style="text-align:right;padding-right:34px !important;"></div>
+            <div class="modal-btns">
+                <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
+                <button class="mbtn mbtn-ok" onclick="addDebt()">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="pay-modal-overlay" onclick="closeModals()" style="align-items:flex-start; padding-top:20%">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-top">
+                <div class="modal-ico pay"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                <div>
+                    <p class="modal-title" id="pay-title">تسديد دفعة</p>
+                    <p class="modal-subtitle">أدخل المبلغ المدفوع</p>
+                </div>
+            </div>
+            <div class="input-wrap">
+                <input type="number" id="pay-amount" inputmode="decimal">
+            </div>
+            <div class="input-wrap">
+                <input type="text" id="pay-note" placeholder="مثلاً: دفع إيجار" style="text-align:center;padding-right:12px !important;">
+            </div>
+            <div class="input-wrap">
+                <input type="text" id="pay-date" placeholder="التاريخ: 2025/3/5" style="text-align:center;padding-right:12px !important;">
+            </div>
+            <div class="modal-btns">
+                <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
+                <button class="mbtn mbtn-ok" id="pay-confirm-btn">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="del-modal-overlay" onclick="closeModals()" style="align-items:flex-start; padding-top:50%">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-top">
+                <div class="modal-ico del"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div><p class="modal-title">تأكيد الحذف</p></div>
+            </div>
+            <p class="modal-del-text" id="del-modal-desc"></p>
+            <div class="modal-btns">
+                <button class="mbtn mbtn-cancel" onclick="closeModals()">تراجع</button>
+                <button class="mbtn mbtn-del" id="del-confirm-btn">احذف</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="edit-modal-overlay" onclick="closeModals()" style="align-items:flex-start; padding-top:20%">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-top">
+                <div class="modal-ico edit"><i class="fa-solid fa-pen"></i></div>
+                <div>
+                    <p class="modal-title">تعديل معلومات الدين</p>
+                    <p class="modal-subtitle">عدّل الاسم أو المبلغ الكلي</p>
+                </div>
+            </div>
+            <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" id="edit-name" placeholder="اسم الشخص"></div>
+            <div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" id="edit-amount" placeholder="المبلغ الكلي" inputmode="decimal"></div>
+            <div class="input-wrap"><i class="fa-solid fa-tag"></i><input type="text" id="edit-debt-note" placeholder="مثلاً: دين سيارة" style="text-align:right;padding-right:34px !important;"></div>
+            <div class="modal-btns">
+                <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
+                <button class="mbtn mbtn-ok" id="edit-confirm-btn">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="edit-pay-modal-overlay" style="align-items:flex-start; padding-top:25%" onclick="closeModals()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-top">
+                <div class="modal-ico edit-pay"><i class="fa-solid fa-pen-to-square"></i></div>
+                <div>
+                    <p class="modal-title">تعديل الدفعة</p>
+                    <p class="modal-subtitle">عدّل المبلغ أو الملاحظة</p>
+                </div>
+            </div>
+            <div class="input-wrap">
+                <input type="number" id="edit-pay-amount" inputmode="decimal" style="font-size:1.5rem;font-weight:900;text-align:center;padding:0 12px !important;color:var(--primary);letter-spacing:-0.5px;">
+            </div>
+            <div class="input-wrap">
+                <input type="text" id="edit-pay-note" placeholder="مثلاً: دفع إيجار" style="text-align:center;padding-right:12px !important;">
+            </div>
+            <div class="input-wrap">
+                <input type="text" id="edit-pay-date" placeholder="التاريخ: 2025/3/5" style="text-align:center;padding-right:12px !important;">
+            </div>
+            <div class="modal-btns">
+                <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
+                <button class="mbtn mbtn-del" id="edit-pay-del-btn">حذف</button>
+                <button class="mbtn mbtn-ok" id="edit-pay-confirm-btn">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let debts = JSON.parse(localStorage.getItem('my_debts_final_v3')) || [];
+
+    function initial(name) { return name.trim().charAt(0).toUpperCase(); }
+
+    function toggleMenu(e, id, done) {
+        const menu = document.getElementById('floating-menu');
+        const isOpen = menu.classList.contains('open') && menu.dataset.id == id;
+        closeMenus();
+        if (isOpen) return;
+
+        const btn = e.currentTarget;
+        const rect = btn.getBoundingClientRect();
+        menu.style.top  = (rect.bottom + window.scrollY + 4) + 'px';
+        menu.style.left = (rect.left + window.scrollX - 100) + 'px';
+        menu.dataset.id = id;
+
+        const payBtn = document.getElementById('fm-pay');
+        payBtn.style.display = done ? 'none' : 'flex';
+        payBtn.onclick = () => { openPayModal(id); closeMenus(); };
+        document.getElementById('fm-edit').onclick = () => { openEditModal(id); closeMenus(); };
+        document.getElementById('fm-del').onclick  = () => { openDelModal(id); closeMenus(); };
+
+        menu.classList.add('open');
+    }
+
+    function closeMenus() {
+        if(document.getElementById('floating-menu')) {
+            document.getElementById('floating-menu').classList.remove('open');
+        }
+    }
+
+    function openAddModal() {
+        document.getElementById('add-modal-overlay').classList.add('active');
+        setTimeout(() => document.getElementById('name').focus(), 100);
+    }
+
+    function addDebt() {
+        const name = document.getElementById('name').value.trim();
+        const amount = parseFloat(document.getElementById('amount').value);
+        const note = document.getElementById('debt-note').value.trim();
+        if (!name || isNaN(amount) || amount <= 0) return;
+        debts.unshift({ id: Date.now(), name, original: amount, remaining: amount, note, payments: [] });
+        save(); closeModals();
+        document.getElementById('name').value = '';
+        document.getElementById('amount').value = '';
+        document.getElementById('debt-note').value = '';
+    }
+
+    function openPayModal(id) {
+        const debt = debts.find(d => d.id === id);
+        document.getElementById('pay-title').innerText = `تسديد — ${debt.name}`;
+        document.getElementById('pay-amount').value = '';
+        document.getElementById('pay-note').value = '';
+        const now = new Date();
+        document.getElementById('pay-date').value = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
+        document.getElementById('pay-modal-overlay').classList.add('active');
+        setTimeout(() => document.getElementById('pay-amount').focus(), 100);
+        document.getElementById('pay-confirm-btn').onclick = () => confirmPayment(id);
+    }
+
+    function openEditModal(id) {
+        const debt = debts.find(d => d.id === id);
+        document.getElementById('edit-name').value = debt.name;
+        document.getElementById('edit-amount').value = debt.original;
+        document.getElementById('edit-debt-note').value = debt.note || '';
+        document.getElementById('edit-modal-overlay').classList.add('active');
+        setTimeout(() => document.getElementById('edit-name').focus(), 100);
+        document.getElementById('edit-confirm-btn').onclick = () => confirmEdit(id);
+    }
+
+    function confirmEdit(id) {
+        const debt = debts.find(d => d.id === id);
+        const name = document.getElementById('edit-name').value.trim();
+        const newOriginal = parseFloat(document.getElementById('edit-amount').value);
+        const note = document.getElementById('edit-debt-note').value.trim();
+        if (!name || isNaN(newOriginal) || newOriginal <= 0) return;
+        const paid = debt.original - debt.remaining;
+        debt.name = name;
+        debt.original = newOriginal;
+        debt.remaining = Math.max(0, newOriginal - paid);
+        debt.note = note;
+        save(); closeModals();
+    }
+
+    function openDelModal(id) {
+        const debt = debts.find(d => d.id === id);
+        document.getElementById('del-modal-overlay').classList.add('active');
+        document.getElementById('del-confirm-btn').onclick = () => {
+            debts = debts.filter(d => d.id !== id);
+            save(); closeModals();
+        };
+    }
+
+    function closeModals() {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+    }
+
+    function confirmPayment(id) {
+        const debt = debts.find(d => d.id === id);
+        const amount = parseFloat(document.getElementById('pay-amount').value);
+        const note = document.getElementById('pay-note').value.trim();
+        const date = document.getElementById('pay-date').value.trim();
+        if (!isNaN(amount) && amount > 0 && amount <= debt.remaining) {
+            debt.remaining -= amount;
+            debt.payments.push({ amount, date: normalizeDate(date) || `${new Date().getFullYear()}/${new Date().getMonth()+1}/${new Date().getDate()}`, note });
+            save(); closeModals();
+        }
+    }
+
+    function openEditPayModal(debtId, payIdx) {
+        const debt = debts.find(d => d.id === debtId);
+        const pay = debt.payments[payIdx];
+        document.getElementById('edit-pay-amount').value = pay.amount;
+        document.getElementById('edit-pay-note').value = pay.note || '';
+        // تحويل التاريخ من Y/M/D إلى YYYY-MM-DD لحقل date
+        if (pay.date) {
+            const [y, m, d] = pay.date.split('/').map(Number);
+            document.getElementById('edit-pay-date').value = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        }
+        document.getElementById('edit-pay-date').value = pay.date || '';
+        document.getElementById('edit-pay-modal-overlay').classList.add('active');
+        document.querySelectorAll('#edit-pay-modal-overlay input').forEach(i => i.blur());
+        document.getElementById('edit-pay-confirm-btn').onclick = () => {
+            const newAmount = parseFloat(document.getElementById('edit-pay-amount').value);
+            const newNote = document.getElementById('edit-pay-note').value.trim();
+            const newDate = document.getElementById('edit-pay-date').value.trim();
+            if (!isNaN(newAmount) && newAmount > 0) {
+                const diff = newAmount - pay.amount;
+                debt.remaining -= diff;
+                pay.amount = newAmount;
+                pay.note = newNote;
+                if (newDate) pay.date = normalizeDate(newDate) || newDate;
+                save(); closeModals();
+            }
+        };
+        document.getElementById('edit-pay-del-btn').onclick = () => {
+            const diff = pay.amount;
+            debt.remaining += diff;
+            debt.payments.splice(payIdx, 1);
+            save(); closeModals();
+        };
+    }
+
+    function toggleHistory(id) {
+        const el = document.getElementById('hist-' + id);
+        el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function parseDate(str) {
+        if (!str) return 0;
+        const parts = str.split('/').map(Number);
+        return new Date(parts[0], (parts[1] || 1) - 1, parts[2] || 1).getTime();
+    }
+
+    function normalizeDate(str) {
+        if (!str) return str;
+        const parts = str.split(/[\/\-\.]/).map(Number).filter(n => !isNaN(n));
+        if (parts.length !== 3) return str;
+        let y, m, d;
+        if (parts[0] > 31) { y = parts[0]; m = parts[1]; d = parts[2]; }       // YYYY/M/D
+        else if (parts[2] > 31) { d = parts[0]; m = parts[1]; y = parts[2]; }  // D/M/YYYY
+        else return str;
+        return `${y}/${m}/${d}`;
+    }
+
+    function save() {
+        debts.forEach(d => {
+            d.payments.sort((a, b) => parseDate(a.date) - parseDate(b.date));
+        });
+        localStorage.setItem('my_debts_final_v3', JSON.stringify(debts));
+        render();
+    }
+
+    function exportData() {
+        const blob = new Blob([JSON.stringify(debts, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'Backup.json';
+        a.click();
+    }
+
+    function importData(e) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+            try { debts = JSON.parse(ev.target.result); save(); }
+            catch { alert('خطأ في استيراد الملف!'); }
+        };
+        if (e.target.files[0]) reader.readAsText(e.target.files[0]);
+    }
+
+    function render() {
+        const container = document.getElementById('list-container');
+        let total = 0;
+        container.innerHTML = '';
+
+        if (debts.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-folder-open"></i><p>لا يوجد سجلات حتى الآن</p></div>`;
+            document.getElementById('grand-total').innerText = '0';
+            return;
+        }
+
+        debts.forEach((d, i) => {
+            total += d.remaining;
+            const done = d.remaining <= 0;
+            const pct  = Math.round(((d.original - d.remaining) / d.original) * 100);
+            const paid = d.original - d.remaining;
+
+            container.innerHTML += `
+                <div class="debt-card" data-id="${d.id}" onclick="toggleHistory(${d.id})" style="cursor:pointer; animation: fadeIn 0.25s ${i*0.04}s both;">
+
+                    <div class="card-name-row">
+                        <div style="flex:1">
+                            <div class="person-name">${d.name}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            ${d.note ? `<div style="font-size:0.72rem;color:var(--text-muted);position:absolute;left:50%;transform:translateX(-50%)">${d.note}</div>` : ''}
+                            <div style="font-size:1.15rem;font-weight:900;color:var(--text-dark)">${d.remaining.toLocaleString()}</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <div style="display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:5px;">
+                            <span style="color:var(--primary);font-weight:700">${pct}% مسدّد</span>
+                            <span style="color:var(--text-muted)">من أصل ${d.original.toLocaleString()}</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill ${done ? 'done' : ''}" style="width:${pct}%"></div>
+                        </div>
+                        ${d.note ? `` : ''}
+                    </div>
+
+                    <div class="payment-history" id="hist-${d.id}">
+                        <div class="card-amounts">
+                            <div class="amount-cell">
+                                <span class="cell-label">الكلي</span>
+                                <span class="cell-value">${d.original.toLocaleString()}</span>
+                            </div>
+                            <div class="amount-cell">
+                                <span class="cell-label">المدفوع</span>
+                                <span class="cell-value">${paid.toLocaleString()}</span>
+                            </div>
+                            <div class="amount-cell ${done ? 'done-cell' : 'highlight'}">
+                                <span class="cell-label">${done ? '✓ مكتمل' : 'المتبقي'}</span>
+                                <span class="cell-value">${d.remaining.toLocaleString()}</span>
+                            </div>
+                        </div>
+
+                        ${d.payments.length ? 
+                          `<div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-top:2px;">
+                             <div style="font-size:0.68rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">سجل الدفعات</div>
+                             ${d.payments.map((p, pi) => `
+                                <div class="history-item" data-debt-id="${d.id}" data-pay-idx="${pi}">
+                                    <span class="history-amount">${p.amount.toLocaleString()}</span>
+                                    ${p.note ? `<span class="history-date" style="position:absolute; left:50%; transform:translateX(-50%);">${p.note}</span>` : ''}
+                                    <span class="history-date" style="margin-right:auto;"><span dir="ltr">${p.date.split('/').map(Number).join('/')}</span></span>
+                                </div>
+                             `).join('')}
+                           </div>` 
+                          : `<div class="no-payments">لا توجد دفعات مسجّلة</div>`
+                        }
+
+                        <div class="btn-group" style="margin-top:10px;" onclick="event.stopPropagation();">
+                            ${!done ? 
+                              `<button class="btn btn-pay" onclick="openPayModal(${d.id})"><i class="fa-solid fa-money-bill-transfer"></i> تسديد</button>` 
+                              : `<button class="btn btn-done"><i class="fa-solid fa-circle-check"></i> مكتمل</button>`
+                            }
+                            <button class="btn btn-edit" onclick="openEditModal(${d.id})"><i class="fa-solid fa-pen"></i> تعديل</button>
+                            <button class="btn btn-del" onclick="openDelModal(${d.id})"><i class="fa-solid fa-trash-can"></i> حذف</button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+
+        document.getElementById('grand-total').innerText = total;
+        initDrag();
+        initPayLongPress();
+    }
+
+    function initPayLongPress() {
+        document.querySelectorAll('.history-item').forEach(item => {
+            let pt = null;
+            const debtId = parseInt(item.dataset.debtId);
+            const payIdx = parseInt(item.dataset.payIdx);
+
+            const start = () => {
+                pt = setTimeout(() => {
+                    item.classList.remove('pressing');
+                    if (navigator.vibrate) navigator.vibrate(40);
+                    openEditPayModal(debtId, payIdx);
+                }, 500);
+                item.classList.add('pressing');
+            };
+            const cancel = () => { clearTimeout(pt); item.classList.remove('pressing'); };
+
+            item.addEventListener('touchstart', start, { passive: true });
+            item.addEventListener('touchend', cancel);
+            item.addEventListener('touchmove', cancel, { passive: true });
+            item.addEventListener('mousedown', start);
+            item.addEventListener('mouseup', cancel);
+            item.addEventListener('mouseleave', cancel);
+        });
+    }
+
+    // ─── ترتيب بالضغط المطول ───
+    let pressTimer = null;
+    let dragSrc = null;
+
+    function initDrag() {
+        document.querySelectorAll('.debt-card').forEach(card => {
+            // موبايل
+            card.addEventListener('touchstart', e => {
+                pressTimer = setTimeout(() => {
+                    const hist = card.querySelector('.payment-history');
+                    if (hist && hist.style.display === 'block') return;
+                    card.classList.add('long-press');
+                    card.setAttribute('draggable', true);
+                    if (navigator.vibrate) navigator.vibrate(40);
+                }, 500);
+            }, { passive: true });
+
+            card.addEventListener('touchend', () => {
+                clearTimeout(pressTimer);
+                card.classList.remove('long-press');
+            });
+
+            card.addEventListener('touchmove', () => {
+                clearTimeout(pressTimer);
+            }, { passive: true });
+
+            // ديسكتوب
+            card.addEventListener('mousedown', () => {
+                pressTimer = setTimeout(() => {
+                    const hist = card.querySelector('.payment-history');
+                    if (hist && hist.style.display === 'block') return;
+                    card.classList.add('long-press');
+                    card.setAttribute('draggable', true);
+                }, 500);
+            });
+
+            card.addEventListener('mouseup', () => {
+                clearTimeout(pressTimer);
+                card.classList.remove('long-press');
+            });
+
+            card.addEventListener('dragstart', e => {
+                dragSrc = card;
+                card.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging', 'long-press');
+                card.setAttribute('draggable', false);
+                document.querySelectorAll('.debt-card').forEach(c => c.classList.remove('drag-over'));
+                const ids = [...document.querySelectorAll('.debt-card')].map(c => parseInt(c.dataset.id));
+                debts = ids.map(id => debts.find(d => d.id === id)).filter(Boolean);
+                localStorage.setItem('my_debts_final_v3', JSON.stringify(debts));
+            });
+
+            card.addEventListener('dragover', e => {
+                e.preventDefault();
+                if (card !== dragSrc) {
+                    card.classList.add('drag-over');
+                    const container = document.getElementById('list-container');
+                    const cards = [...container.querySelectorAll('.debt-card')];
+                    const srcIdx = cards.indexOf(dragSrc);
+                    const dstIdx = cards.indexOf(card);
+                    if (srcIdx < dstIdx) container.insertBefore(dragSrc, card.nextSibling);
+                    else container.insertBefore(dragSrc, card);
+                }
+            });
+
+            card.addEventListener('dragleave', () => {
+                card.classList.remove('drag-over');
+            });
+        });
+    }
+
+    document.addEventListener('click', () => closeMenus());
+
+    // رفع النوافذ عند ظهور لوحة المفاتيح
+    const editPayOverlay = document.getElementById('edit-pay-modal-overlay');
+    const addOverlay = document.getElementById('add-modal-overlay');
+    const editOverlay = document.getElementById('edit-modal-overlay');
+    const payOverlay = document.getElementById('pay-modal-overlay');
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+            const ratio = window.visualViewport.height / window.screen.height;
+            if (ratio < 0.75) {
+                editPayOverlay.style.paddingTop = '33px';
+                addOverlay.style.paddingTop = '8px';
+                editOverlay.style.paddingTop = '8px';
+                payOverlay.style.paddingTop = '33px';
+            } else {
+                editPayOverlay.style.paddingTop = '25%';
+                addOverlay.style.paddingTop = '20%';
+                editOverlay.style.paddingTop = '20%';
+                payOverlay.style.paddingTop = '20%';
+            }
+        });
+    }
+
+    render();
+</script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
+    </script>
+</body>
+</html>
