@@ -480,7 +480,8 @@
             box-shadow: 0 0 0 3px rgba(67,97,238,0.1);
         }
 
-        #pay-amount {
+        #pay-amount,
+        #edit-pay-amount {
             font-size: 0.9rem;
             font-weight: 600;
             text-align: center;
@@ -488,14 +489,26 @@
             padding-right: 12px !important;
         }
 
-        #pay-amount.has-value {
-            font-size: 1.25rem;
+        #amount,
+        #edit-amount {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        #pay-amount.has-value,
+        #edit-pay-amount.has-value,
+        #amount.has-value,
+        #edit-amount.has-value {
+            font-size: 1.15rem;
             font-weight: 900;
             color: var(--primary);
             letter-spacing: -0.5px;
         }
 
-        #pay-amount::placeholder {
+        #pay-amount::placeholder,
+        #edit-pay-amount::placeholder,
+        #amount::placeholder,
+        #edit-amount::placeholder {
             font-weight: 600;
             color: var(--text-muted);
             letter-spacing: 0;
@@ -676,7 +689,7 @@
                 </div>
             </div>
             <div class="input-wrap">
-                <input type="number" id="edit-pay-amount" inputmode="decimal" style="font-size:1.5rem;font-weight:900;text-align:center;padding:0 12px !important;color:var(--primary);letter-spacing:-0.5px;">
+                <input type="number" id="edit-pay-amount" inputmode="decimal" placeholder="المبلغ" style="text-align:center;padding:0 12px !important;">
             </div>
             <div class="input-wrap">
                 <input type="text" id="edit-pay-note" placeholder="ملاحظات" style="text-align:center;padding-right:12px !important;">
@@ -738,6 +751,7 @@
         save(); closeModals();
         document.getElementById('name').value = '';
         document.getElementById('amount').value = '';
+        document.getElementById('amount').classList.remove('has-value');
         document.getElementById('debt-note').value = '';
     }
 
@@ -758,6 +772,7 @@
         const debt = debts.find(d => d.id === id);
         document.getElementById('edit-name').value = debt.name;
         document.getElementById('edit-amount').value = debt.original;
+        document.getElementById('edit-amount').classList.add('has-value');
         document.getElementById('edit-debt-note').value = debt.note || '';
         document.getElementById('edit-modal-overlay').classList.add('active');
         setTimeout(() => document.getElementById('edit-name').focus(), 100);
@@ -789,6 +804,9 @@
 
     function closeModals() {
         document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        ['pay-amount','edit-pay-amount','amount','edit-amount'].forEach(id => {
+            document.getElementById(id).classList.remove('has-value');
+        });
     }
 
     function confirmPayment(id) {
@@ -807,6 +825,7 @@
         const debt = debts.find(d => d.id === debtId);
         const pay = debt.payments[payIdx];
         document.getElementById('edit-pay-amount').value = pay.amount;
+        document.getElementById('edit-pay-amount').classList.toggle('has-value', pay.amount !== '');
         document.getElementById('edit-pay-note').value = pay.note || '';
         // تحويل التاريخ من Y/M/D إلى YYYY-MM-DD لحقل date
         if (pay.date) {
@@ -1100,6 +1119,18 @@
     render();
 
     document.getElementById('pay-amount').addEventListener('input', function() {
+        this.classList.toggle('has-value', this.value !== '');
+    });
+
+    document.getElementById('edit-pay-amount').addEventListener('input', function() {
+        this.classList.toggle('has-value', this.value !== '');
+    });
+
+    document.getElementById('amount').addEventListener('input', function() {
+        this.classList.toggle('has-value', this.value !== '');
+    });
+
+    document.getElementById('edit-amount').addEventListener('input', function() {
         this.classList.toggle('has-value', this.value !== '');
     });
 </script>
