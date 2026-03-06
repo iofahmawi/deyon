@@ -75,7 +75,10 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
 
-        .btn-data:hover { border-color: var(--primary); color: var(--primary); }
+        @media (hover: hover) {
+            .btn-data:hover { border-color: var(--primary); color: var(--primary); }
+        }
+        .btn-data.pressing { border-color: var(--primary); color: var(--primary); background: #eff2ff; }
 
         /* ─── export dropdown ─── */
         .export-wrap { position: relative; }
@@ -778,7 +781,7 @@
                 </div>
             </div>
             <div class="input-wrap">
-                <input type="number" id="edit-pay-amount" inputmode="decimal" placeholder="المبلغ" style="text-align:center;padding:0 12px !important;">
+                <input type="number" id="edit-pay-amount" inputmode="decimal" placeholder="المبلغ" style="text-align:center;padding:0 12px !important;" oncopy="return false" oncut="return false" onpaste="return false">
             </div>
             <div class="input-wrap">
                 <input type="text" id="edit-pay-note" placeholder="ملاحظات" style="text-align:center;padding-right:12px !important;">
@@ -940,7 +943,7 @@
         }
         document.getElementById('edit-pay-date').value = pay.date || '';
         document.getElementById('edit-pay-modal-overlay').classList.add('active');
-        document.querySelectorAll('#edit-pay-modal-overlay input').forEach(i => i.blur());
+        setTimeout(() => document.getElementById('edit-pay-amount').focus(), 100);
         document.getElementById('edit-pay-confirm-btn').onclick = () => {
             const newAmount = parseFloat(document.getElementById('edit-pay-amount').value);
             const newNote = document.getElementById('edit-pay-note').value.trim();
@@ -1214,7 +1217,6 @@
             const start = () => {
                 pt = setTimeout(() => {
                     item.classList.remove('pressing');
-                    if (navigator.vibrate) navigator.vibrate(40);
                     openEditPayModal(debtId, payIdx);
                 }, 500);
                 item.classList.add('pressing');
@@ -1243,7 +1245,6 @@
                     if (hist && hist.style.display === 'block') return;
                     card.classList.add('long-press');
                     card.setAttribute('draggable', true);
-                    if (navigator.vibrate) navigator.vibrate(40);
                 }, 500);
             }, { passive: true });
 
@@ -1307,6 +1308,12 @@
 
     document.addEventListener('click', () => { closeMenus(); closeExportMenu(); });
 
+    document.querySelectorAll('.btn-data').forEach(btn => {
+        btn.addEventListener('touchstart', () => btn.classList.add('pressing'), { passive: true });
+        btn.addEventListener('touchend', () => setTimeout(() => btn.classList.remove('pressing'), 80));
+        btn.addEventListener('touchcancel', () => btn.classList.remove('pressing'));
+    });
+
     // رفع النوافذ عند ظهور لوحة المفاتيح
     const editPayOverlay = document.getElementById('edit-pay-modal-overlay');
     const addOverlay = document.getElementById('add-modal-overlay');
@@ -1317,39 +1324,32 @@
 
     const isPWA = window.matchMedia('(display-mode: standalone)').matches;
 
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', () => {
-            const ratio = window.visualViewport.height / window.screen.height;
-            if (ratio < 0.75) {
-                const vh = window.visualViewport.height;
-                if (isPWA) {
-                    [editPayOverlay, payOverlay, addOverlay, editOverlay, exportPersonOverlay].forEach(ov => {
-                        ov.style.height = vh + 'px';
-                        ov.style.alignItems = 'center';
-                        ov.style.paddingTop = '0';
-                    });
-                } else {
-                    editPayOverlay.style.height = '';
-                    editPayOverlay.style.paddingTop = '32px';
-                    payOverlay.style.height = '';
-                    payOverlay.style.paddingTop = '32px';
-                    addOverlay.style.paddingTop = '9px';
-                    editOverlay.style.paddingTop = '9px';
-                    exportPersonOverlay.style.paddingTop = '32px';
-                }
-            } else {
-                [editPayOverlay, payOverlay, addOverlay, editOverlay, exportPersonOverlay].forEach(ov => {
-                    ov.style.height = '';
-                    ov.style.alignItems = '';
-                    ov.style.paddingTop = '';
-                });
-                editPayOverlay.style.paddingTop = '25%';
-                addOverlay.style.paddingTop = '20%';
-                editOverlay.style.paddingTop = '20%';
-                payOverlay.style.paddingTop = '20%';
-                exportPersonOverlay.style.paddingTop = '15%';
-            }
+    const allOverlays = [editPayOverlay, payOverlay, addOverlay, editOverlay];
+
+    function syncOverlays() {
+        const vh = window.visualViewport.height;
+        const ratio = vh / window.screen.height;
+        allOverlays.forEach(ov => {
+            ov.style.height = vh + 'px';
+            ov.style.alignItems = 'center';
+            ov.style.paddingTop = '0';
         });
+        // نافذة تصدير دين معين تبقى بسلوكها الأصلي
+        if (ratio < 0.75) {
+            exportPersonOverlay.style.height = '';
+            exportPersonOverlay.style.alignItems = 'flex-start';
+            exportPersonOverlay.style.paddingTop = '32px';
+        } else {
+            exportPersonOverlay.style.height = '';
+            exportPersonOverlay.style.alignItems = 'flex-start';
+            exportPersonOverlay.style.paddingTop = '15%';
+        }
+    }
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', syncOverlays);
+        window.visualViewport.addEventListener('scroll', syncOverlays);
+        syncOverlays();
     }
 
     function openSearch() {
