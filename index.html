@@ -1323,30 +1323,29 @@
             if (ratio < 0.75) {
                 const vh = window.visualViewport.height;
                 if (isPWA) {
-                    // تقليص الـ overlay لحجم المنطقة المرئية فوق اللوحة وتوسيط النافذة
-                    editPayOverlay.style.height = vh + 'px';
-                    editPayOverlay.style.alignItems = 'center';
-                    editPayOverlay.style.paddingTop = '0';
-                    payOverlay.style.height = vh + 'px';
-                    payOverlay.style.alignItems = 'center';
-                    payOverlay.style.paddingTop = '0';
+                    [editPayOverlay, payOverlay, addOverlay, editOverlay, exportPersonOverlay].forEach(ov => {
+                        ov.style.height = vh + 'px';
+                        ov.style.alignItems = 'center';
+                        ov.style.paddingTop = '0';
+                    });
                 } else {
                     editPayOverlay.style.height = '';
                     editPayOverlay.style.paddingTop = '32px';
                     payOverlay.style.height = '';
                     payOverlay.style.paddingTop = '32px';
+                    addOverlay.style.paddingTop = '9px';
+                    editOverlay.style.paddingTop = '9px';
+                    exportPersonOverlay.style.paddingTop = '32px';
                 }
-                addOverlay.style.paddingTop = isPWA ? '33px' : '9px';
-                editOverlay.style.paddingTop = isPWA ? '33px' : '9px';
-                exportPersonOverlay.style.paddingTop = '32px';
             } else {
-                editPayOverlay.style.height = '';
-                editPayOverlay.style.alignItems = '';
+                [editPayOverlay, payOverlay, addOverlay, editOverlay, exportPersonOverlay].forEach(ov => {
+                    ov.style.height = '';
+                    ov.style.alignItems = '';
+                    ov.style.paddingTop = '';
+                });
                 editPayOverlay.style.paddingTop = '25%';
                 addOverlay.style.paddingTop = '20%';
                 editOverlay.style.paddingTop = '20%';
-                payOverlay.style.height = '';
-                payOverlay.style.alignItems = '';
                 payOverlay.style.paddingTop = '20%';
                 exportPersonOverlay.style.paddingTop = '15%';
             }
