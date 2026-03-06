@@ -1223,7 +1223,7 @@
     function openScheduleModal(id) {
         scheduleDebtId = id;
         const debt = debts.find(d => d.id === id);
-        document.getElementById('schedule-subtitle').textContent = debt.name + ' + debt.remaining' + debt.remaining.toLocaleString();
+        document.getElementById('schedule-subtitle').textContent = debt.name + ' - ' + debt.remaining.toLocaleString();
         document.getElementById('schedule-count').value = '';
         const existingType = (debt.scheduled && debt.scheduled.length && debt.scheduled[0].type) || null;
         selectedType = existingType || 'monthly';
