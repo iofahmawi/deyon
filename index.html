@@ -1035,7 +1035,11 @@
     }
 
     function exportData() {
-        const blob = new Blob([JSON.stringify(debts, null, 2)], { type: 'application/json' });
+        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        const activeIds = new Set(debts.map(d => d.id));
+        const archivedOnly = archived.filter(d => !activeIds.has(d.id));
+        const all = [...debts, ...archivedOnly];
+        const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = 'Backup.json';
@@ -1054,10 +1058,18 @@
     }
 
     // ─── الديون المكتملة ───
+    function getCompletedList() {
+        const active = debts.filter(d => d.remaining <= 0);
+        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        // دمج بدون تكرار (الأرشيف قد يحتوي ديوناً محذوفة من الرئيسية)
+        const activeIds = new Set(active.map(d => d.id));
+        const archivedOnly = archived.filter(d => !activeIds.has(d.id));
+        return [...active, ...archivedOnly];
+    }
+
     function openCompletedModal() {
-        const completed = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
         document.getElementById('completed-search').value = '';
-        renderCompletedList(completed);
+        renderCompletedList(getCompletedList());
         document.getElementById('completed-modal-overlay').classList.add('active');
         setTimeout(() => document.getElementById('completed-search').blur(), 50);
     }
@@ -1092,8 +1104,10 @@
     }
 
     function filterCompletedList(q) {
-        const completed = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
-        const filtered = completed.filter(d => d.name.toLowerCase().includes(q.trim().toLowerCase()));
+        const completed = getCompletedList();
+        const filtered = q.trim()
+            ? completed.filter(d => d.name.toLowerCase().includes(q.trim().toLowerCase()))
+            : completed;
         renderCompletedList(filtered);
     }
 
@@ -1103,7 +1117,7 @@
 
     function showSingleCard(id) {
         const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
-        const debt = archived.find(d => d.id === id);
+        const debt = debts.find(d => d.id === id) || archived.find(d => d.id === id);
         if (!debt) return;
         const container = document.getElementById('list-container');
         container.innerHTML = '';
