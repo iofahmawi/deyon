@@ -295,6 +295,35 @@
 
         .history-item:last-child { border: none; padding-bottom: 0; }
 
+        .history-item.scheduled { opacity: 0.65; }
+        .history-item.scheduled .history-amount { color: var(--text-muted); }
+        .scheduled-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #f97316;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 5px;
+            padding: 1px 5px;
+            flex-shrink: 0;
+        }
+
+        .schedule-type-btns { display: flex; gap: 6px; margin-bottom: 10px; }
+        .stype-btn {
+            flex: 1;
+            height: 38px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: #f8fafc;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .stype-btn.active { border-color: var(--primary); background: #eff2ff; color: var(--primary); }
+
         .history-amount { 
             font-weight: 800; 
             color: var(--success); 
@@ -847,6 +876,32 @@
         </div>
     </div>
 
+    <!-- مودال الجدولة -->
+    <div class="modal-overlay" id="schedule-modal-overlay" onclick="closeModals()" style="align-items:flex-start; padding-top:20%;">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-top">
+                <div class="modal-ico" style="background:#eff2ff;color:var(--primary);"><i class="fa-solid fa-calendar-days"></i></div>
+                <div>
+                    <p class="modal-title">جدولة الدفعات</p>
+                    <p class="modal-subtitle" id="schedule-subtitle"></p>
+                </div>
+            </div>
+            <div class="input-wrap">
+                <i class="fa-solid fa-list-ol"></i>
+                <input type="number" id="schedule-count" inputmode="numeric" placeholder="عدد الدفعات" style="padding-right:34px;">
+            </div>
+            <div class="schedule-type-btns">
+                <button class="stype-btn active" data-type="monthly" onclick="selectType(this)">شهرية</button>
+                <button class="stype-btn" data-type="weekly" onclick="selectType(this)">أسبوعية</button>
+                <button class="stype-btn" data-type="daily" onclick="selectType(this)">يومية</button>
+            </div>
+            <div class="modal-btns">
+                <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
+                <button class="mbtn mbtn-ok" id="schedule-confirm-btn">جدولة</button>
+            </div>
+        </div>
+    </div>
+
 <script>
     let debts = JSON.parse(localStorage.getItem('my_debts_final_v3')) || [];
 
@@ -1148,6 +1203,71 @@
         render();
     }
 
+    // ─── الجدولة ───
+    let scheduleDebtId = null;
+    let selectedType = 'monthly';
+
+    function selectType(btn) {
+        if (btn.classList.contains('active')) {
+            btn.classList.remove('active');
+            selectedType = null;
+            document.getElementById('schedule-confirm-btn').textContent = 'حفظ';
+            return;
+        }
+        document.querySelectorAll('.stype-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedType = btn.dataset.type;
+        document.getElementById('schedule-confirm-btn').textContent = 'جدولة';
+    }
+
+    function openScheduleModal(id) {
+        scheduleDebtId = id;
+        const debt = debts.find(d => d.id === id);
+        document.getElementById('schedule-subtitle').textContent = debt.name + ' — ' + debt.remaining.toLocaleString();
+        document.getElementById('schedule-count').value = '';
+        const existingType = (debt.scheduled && debt.scheduled.length && debt.scheduled[0].type) || null;
+        selectedType = existingType || 'monthly';
+        document.querySelectorAll('.stype-btn').forEach(b => b.classList.toggle('active', b.dataset.type === selectedType && !existingType));
+        if (existingType) {
+            document.querySelectorAll('.stype-btn').forEach(b => b.classList.toggle('active', b.dataset.type === existingType));
+        }
+        document.getElementById('schedule-confirm-btn').textContent = 'جدولة';
+        document.getElementById('schedule-modal-overlay').classList.add('active');
+        setTimeout(() => document.getElementById('schedule-count').focus(), 100);
+        document.getElementById('schedule-confirm-btn').onclick = () => confirmSchedule();
+    }
+
+    function confirmSchedule() {
+        const debt = debts.find(d => d.id === scheduleDebtId);
+        if (!selectedType) {
+            if (debt) { debt.scheduled = []; save(); }
+            closeModals();
+            return;
+        }
+        const count = parseInt(document.getElementById('schedule-count').value);
+        if (!count || count < 1 || !debt) return;
+
+        const amount = Math.round(debt.remaining / count);
+        const now = new Date();
+        const scheduled = [];
+
+        for (let i = 0; i < count; i++) {
+            const d = new Date(now);
+            if (selectedType === 'daily')   d.setDate(d.getDate() + i + 1);
+            if (selectedType === 'weekly')  d.setDate(d.getDate() + (i + 1) * 7);
+            if (selectedType === 'monthly') d.setMonth(d.getMonth() + i + 1);
+            scheduled.push({
+                amount,
+                date: `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`,
+                type: selectedType
+            });
+        }
+
+        debt.scheduled = scheduled;
+        save();
+        closeModals();
+    }
+
     // ─── قائمة التصدير ───
     function toggleExportMenu(e) {
         e.stopPropagation();
@@ -1296,11 +1416,11 @@
 
                     <div class="card-name-row">
                         <div style="flex:1">
-                            <div class="person-name">${d.name}</div>
+                            <div class="person-name" style="cursor:pointer;display:inline-block;" onclick="event.stopPropagation(); openEditModal(${d.id})">${d.name}</div>
                         </div>
                         <div style="display:flex; align-items:center; gap:8px;">
                             ${d.note ? `<div style="font-size:0.72rem;color:var(--text-muted);position:absolute;left:50%;transform:translateX(-50%)">${d.note}</div>` : ''}
-                            <div style="font-size:1.15rem;font-weight:900;color:var(--text-dark)">${d.remaining.toLocaleString()}</div>
+                            <div style="font-size:${done ? '0.85rem' : '1.15rem'};font-weight:900;color:var(--text-dark)">${done ? 'مكتمل' : d.remaining.toLocaleString()}</div>
                         </div>
                     </div>
 
@@ -1326,12 +1446,12 @@
                                 <span class="cell-value">${paid.toLocaleString()}</span>
                             </div>
                             <div class="amount-cell ${done ? 'done-cell' : 'highlight'}">
-                                <span class="cell-label">${done ? '✓ مكتمل' : 'المتبقي'}</span>
+                                <span class="cell-label">المتبقي</span>
                                 <span class="cell-value">${d.remaining.toLocaleString()}</span>
                             </div>
                         </div>
 
-                        ${d.payments.length ? 
+                        ${(d.payments.length || (d.scheduled && d.scheduled.length)) ? 
                           `<div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-top:2px;">
                              <div style="font-size:0.68rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">سجل الدفعات</div>
                              ${d.payments.map((p, pi) => `
@@ -1341,6 +1461,13 @@
                                     <span class="history-date" style="margin-right:auto;"><span dir="ltr">${p.date.split('/').map(Number).join('/')}</span></span>
                                 </div>
                              `).join('')}
+                             ${d.scheduled && d.scheduled.length ? d.scheduled.map(s => `
+                                <div class="history-item scheduled">
+                                    <span class="history-amount">${s.amount.toLocaleString()}</span>
+                                    <span class="history-date" style="position:absolute; left:50%; transform:translateX(-50%); color:var(--text-muted);">غير مدفوعة</span>
+                                    <span class="history-date" style="margin-right:auto;"><span dir="ltr">${s.date.split('/').map(Number).join('/')}</span></span>
+                                </div>
+                             `).join('') : ''}
                            </div>` 
                           : `<div class="no-payments">لا توجد دفعات مسجّلة</div>`
                         }
@@ -1350,7 +1477,7 @@
                               `<button class="btn btn-pay" onclick="openPayModal(${d.id})"><i class="fa-solid fa-money-bill-transfer"></i> تسديد</button>` 
                               : `<button class="btn btn-done"><i class="fa-solid fa-circle-check"></i> مكتمل</button>`
                             }
-                            <button class="btn btn-edit" onclick="openEditModal(${d.id})"><i class="fa-solid fa-pen"></i> تعديل</button>
+                            <button class="btn btn-edit" onclick="openScheduleModal(${d.id})"><i class="fa-solid fa-calendar-days"></i> جدولة</button>
                             <button class="btn btn-del" onclick="openDelModal(${d.id})"><i class="fa-solid fa-trash-can"></i> حذف</button>
                         </div>
                     </div>
@@ -1479,6 +1606,7 @@
     const isPWA = window.matchMedia('(display-mode: standalone)').matches;
 
     const completedOverlay = document.getElementById('completed-modal-overlay');
+    const scheduleOverlay = document.getElementById('schedule-modal-overlay');
     const allOverlays = [editPayOverlay, payOverlay, addOverlay, editOverlay];
 
     function syncOverlays() {
@@ -1495,6 +1623,17 @@
             ov.style.alignItems = 'flex-start';
             ov.style.paddingTop = ratio < 0.75 ? '32px' : '15%';
         });
+        // نافذة الجدولة
+        if (ratio < 0.75) {
+            const vh = window.visualViewport.height;
+            scheduleOverlay.style.height = vh + 'px';
+            scheduleOverlay.style.alignItems = 'center';
+            scheduleOverlay.style.paddingTop = '0';
+        } else {
+            scheduleOverlay.style.height = '';
+            scheduleOverlay.style.alignItems = 'flex-start';
+            scheduleOverlay.style.paddingTop = '20%';
+        }
     }
 
     if (window.visualViewport) {
