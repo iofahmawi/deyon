@@ -1136,7 +1136,7 @@
             if (!card) return;
             card.style.transition = 'box-shadow 0.3s';
             card.style.boxShadow = '0 0 0 1px var(--success)';
-            setTimeout(() => { card.style.boxShadow = ''; toggleHistory(id); }, 700);
+            setTimeout(() => { card.style.boxShadow = ''; }, 700);
         }, 80);
     }
 
@@ -1203,16 +1203,16 @@
         const debt = debts.find(d => d.id === id);
         if (!debt) return;
 
-        // فتح البطاقة إذا لم تكن مفتوحة
-        const hist = document.getElementById(`hist-${id}`);
-        const wasOpen = hist && hist.style.display === 'block';
-        if (!wasOpen) toggleHistory(id);
+        // عرض البطاقة لوحدها أولاً
+        showSingleCard(id);
+        await new Promise(r => setTimeout(r, 120));
 
         const card = document.querySelector(`.debt-card[data-id="${id}"]`);
 
-        // تمرير الشاشة للبطاقة
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        await new Promise(r => setTimeout(r, 500));
+        // فتح البطاقة إذا لم تكن مفتوحة
+        const hist = document.getElementById(`hist-${id}`);
+        if (!hist || hist.style.display !== 'block') toggleHistory(id);
+        await new Promise(r => setTimeout(r, 150));
 
         // تمييز البطاقة بشكل مرئي
         card.style.transition = 'box-shadow 0.3s, transform 0.3s';
@@ -1238,12 +1238,11 @@
             logging: false,
         });
 
-        // استعادة كل شيء
+        // استعادة الأزرار فقط — تبقى البطاقة لوحدها
         if (btnGroup) btnGroup.style.display = '';
         card.style.transition = '';
         card.style.transform = '';
         card.style.boxShadow = '';
-        if (!wasOpen) toggleHistory(id);
 
         // تحميل الصورة
         const date = new Date();
