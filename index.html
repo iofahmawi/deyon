@@ -297,6 +297,8 @@
 
         .history-item.scheduled { opacity: 0.65; }
         .history-item.scheduled .history-amount { color: var(--text-muted); }
+        .history-item.due .history-amount { color: var(--danger); }
+
         .scheduled-badge {
             font-size: 0.65rem;
             font-weight: 700;
@@ -604,7 +606,8 @@
         .mbtn {
             flex: 1;
             padding: 0;
-            height: 41px;
+            height: 44px;
+            min-height: 44px;
             border: none;
             border-radius: 10px;
             font-weight: 700;
@@ -906,6 +909,24 @@
         </div>
     </div>
 
+    <!-- مودال الدفعة المستحقة -->
+    <div class="modal-overlay" id="due-modal-overlay" onclick="closeModals()" style="align-items:flex-start; padding-top:50%;">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-top">
+                <div class="modal-ico del"><i class="fa-solid fa-clock"></i></div>
+                <div>
+                    <p class="modal-title">دفعة مستحقة</p>
+                    <p class="modal-subtitle" id="due-modal-subtitle"></p>
+                </div>
+            </div>
+            <div class="modal-btns" style="flex-direction:column;gap:8px;">
+                <button class="mbtn mbtn-ok" id="due-pay-btn" style="width:100%;height:44px;"><i class="fa-solid fa-money-bill-transfer" style="margin-left:6px;"></i>سداد</button>
+                <button class="mbtn mbtn-cancel" id="due-reschedule-btn" style="width:100%;height:44px;"><i class="fa-solid fa-calendar-days" style="margin-left:6px;"></i>توزيع على باقي الدفعات</button>
+                <button class="mbtn mbtn-cancel" onclick="closeModals()" style="width:100%;height:44px;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
 <script>
     let debts = JSON.parse(localStorage.getItem('my_debts_final_v3')) || [];
 
@@ -959,14 +980,28 @@
     function openPayModal(id) {
         const debt = debts.find(d => d.id === id);
         document.getElementById('pay-title').innerText = `تسديد - ${debt.name}`;
-        document.getElementById('pay-amount').value = '';
-        document.getElementById('pay-amount').classList.remove('has-value');
         document.getElementById('pay-note').value = '';
-        const now = new Date();
+        const now = new Date(); now.setHours(0,0,0,0);
         document.getElementById('pay-date').value = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+
+        // إذا كان هناك دفعة مستحقة اليوم أو قبله — اقترح مبلغها
+        const dueIdx = debt.scheduled ? debt.scheduled.findIndex(s => {
+            const p = s.date.split('/').map(Number);
+            return new Date(p[0], p[1]-1, p[2]) <= now;
+        }) : -1;
+
+        if (dueIdx !== -1) {
+            const dueAmount = debt.scheduled[dueIdx].amount;
+            document.getElementById('pay-amount').value = dueAmount;
+            document.getElementById('pay-amount').classList.add('has-value');
+        } else {
+            document.getElementById('pay-amount').value = '';
+            document.getElementById('pay-amount').classList.remove('has-value');
+        }
+
         document.getElementById('pay-modal-overlay').classList.add('active');
         setTimeout(() => document.getElementById('pay-amount').focus(), 100);
-        document.getElementById('pay-confirm-btn').onclick = () => confirmPayment(id);
+        document.getElementById('pay-confirm-btn').onclick = () => confirmPayment(id, dueIdx);
     }
 
     function openEditModal(id) {
@@ -1016,16 +1051,28 @@
         });
     }
 
-    function confirmPayment(id) {
+    function confirmPayment(id, dueIdx = -1) {
         const debt = debts.find(d => d.id === id);
         const amount = parseFloat(document.getElementById('pay-amount').value);
         const note = document.getElementById('pay-note').value.trim();
         const date = document.getElementById('pay-date').value.trim();
-        if (!isNaN(amount) && amount > 0 && amount <= debt.remaining) {
-            debt.remaining -= amount;
-            debt.payments.push({ amount, date: normalizeDate(date) || `${new Date().getFullYear()}/${new Date().getMonth()+1}/${new Date().getDate()}`, note });
-            save(); closeModals();
+        if (isNaN(amount) || amount <= 0 || amount > debt.remaining) return;
+
+        debt.payments.push({ amount, date: normalizeDate(date) || `${new Date().getFullYear()}/${new Date().getMonth()+1}/${new Date().getDate()}`, note });
+
+        // معالجة الجدولة إذا كانت هناك دفعة مستحقة
+        if (dueIdx !== -1 && debt.scheduled && debt.scheduled[dueIdx]) {
+            const dueAmount = debt.scheduled[dueIdx].amount;
+            debt.scheduled.splice(dueIdx, 1);
+            const diff = dueAmount - amount;
+            // إذا دفع أقل من المستحق — وزّع الفرق على الباقي
+            if (diff > 0 && debt.scheduled.length) {
+                const extra = Math.round((diff / debt.scheduled.length) * 100) / 100;
+                debt.scheduled.forEach(s => s.amount += extra);
+            }
         }
+
+        save(); closeModals();
     }
 
     function openEditPayModal(debtId, payIdx) {
@@ -1049,7 +1096,7 @@
             const newDate = document.getElementById('edit-pay-date').value.trim();
             if (!isNaN(newAmount) && newAmount > 0) {
                 const diff = newAmount - pay.amount;
-                debt.remaining -= diff;
+    
                 pay.amount = newAmount;
                 pay.note = newNote;
                 if (newDate) pay.date = normalizeDate(newDate) || newDate;
@@ -1057,8 +1104,6 @@
             }
         };
         document.getElementById('edit-pay-del-btn').onclick = () => {
-            const diff = pay.amount;
-            debt.remaining += diff;
             debt.payments.splice(payIdx, 1);
             save(); closeModals();
         };
@@ -1086,9 +1131,21 @@
         return `${y}/${m}/${d}`;
     }
 
+    function recalcRemaining(debt) {
+        const paid = debt.payments.reduce((sum, p) => sum + p.amount, 0);
+        debt.remaining = debt.original - paid;
+    }
+
     function save() {
         debts.forEach(d => {
             d.payments.sort((a, b) => parseDate(a.date) - parseDate(b.date));
+            recalcRemaining(d);
+            // إعادة توزيع الجدول إذا وجد
+            if (d.scheduled && d.scheduled.length && d.remaining > 0) {
+                const count = d.scheduled.length;
+                const per = Math.round((d.remaining / count) * 100) / 100;
+                d.scheduled.forEach(s => s.amount = per);
+            }
         });
         localStorage.setItem('my_debts_final_v3', JSON.stringify(debts));
         render();
@@ -1208,6 +1265,36 @@
         render();
     }
 
+    // ─── الدفعة المستحقة ───
+    function openDueModal(debtId, schedIdx) {
+        const debt = debts.find(d => d.id === debtId);
+        if (!debt) return;
+        const s = debt.scheduled[schedIdx];
+        if (!s) return;
+        document.getElementById('due-modal-subtitle').textContent = debt.name + ' - ' + s.amount.toLocaleString();
+        document.getElementById('due-modal-overlay').classList.add('active');
+
+        document.getElementById('due-pay-btn').onclick = () => {
+            const now = new Date();
+            debt.payments.push({
+                amount: s.amount,
+                date: `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`,
+                note: ''
+            });
+            debt.scheduled.splice(schedIdx, 1);
+            save(); closeModals();
+        };
+
+        document.getElementById('due-reschedule-btn').onclick = () => {
+            const remaining = debt.scheduled.filter((_, i) => i !== schedIdx);
+            if (!remaining.length) { debt.scheduled = []; save(); closeModals(); return; }
+            const extra = Math.round(s.amount / remaining.length);
+            remaining.forEach(r => r.amount += extra);
+            debt.scheduled = remaining;
+            save(); closeModals();
+        };
+    }
+
     // ─── الجدولة ───
     let scheduleDebtId = null;
     let selectedType = 'monthly';
@@ -1254,7 +1341,7 @@
         const count = parseInt(document.getElementById('schedule-count').value);
         if (!count || count < 1 || !debt) return;
 
-        const amount = Math.round(debt.remaining / count);
+        const perAmount = Math.round((debt.remaining / count) * 100) / 100;
         const rawDate = normalizeDate(document.getElementById('schedule-start-date').value.trim());
         const parts = rawDate ? rawDate.split('/').map(Number) : [];
         const startDate = (parts.length === 3 && !isNaN(parts[0]))
@@ -1268,8 +1355,8 @@
             if (selectedType === 'weekly')  d.setDate(d.getDate() + i * 7);
             if (selectedType === 'monthly') d.setMonth(d.getMonth() + i);
             scheduled.push({
-                amount,
-                date: `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`,  
+                amount: perAmount,
+                date: `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`,
                 type: selectedType
             });
         }
@@ -1472,13 +1559,17 @@
                                     <span class="history-date" style="margin-right:auto;"><span dir="ltr">${p.date.split('/').map(Number).join('-')}</span></span>
                                 </div>
                              `).join('')}
-                             ${d.scheduled && d.scheduled.length ? d.scheduled.map(s => `
-                                <div class="history-item scheduled">
+                             ${d.scheduled && d.scheduled.length ? d.scheduled.map((s, si) => {
+                                const parts = s.date.split('/').map(Number);
+                                const sDate = new Date(parts[0], parts[1]-1, parts[2]);
+                                const today = new Date(); today.setHours(0,0,0,0);
+                                const isDue = sDate <= today;
+                                return `<div class="history-item scheduled ${isDue ? 'due' : ''}" data-debt-id="${d.id}" data-sched-idx="${si}" style="${isDue ? 'cursor:pointer;' : ''}">
                                     <span class="history-amount">${s.amount.toLocaleString()}</span>
-                                    <span class="history-date" style="position:absolute; left:50%; transform:translateX(-50%); color:var(--text-muted);">غير مدفوعة</span>
+                                    <span class="history-date" style="position:absolute; left:50%; transform:translateX(-50%); color:${isDue ? 'var(--danger)' : 'var(--text-muted)'};">${isDue ? 'مستحقة' : 'غير مدفوعة'}</span>
                                     <span class="history-date" style="margin-right:auto;"><span dir="ltr">${s.date.split('/').map(Number).join('-')}</span></span>
-                                </div>
-                             `).join('') : ''}
+                                </div>`;
+                             }).join('') : ''}
                            </div>` 
                           : `<div class="no-payments">لا توجد دفعات مسجّلة</div>`
                         }
@@ -1496,6 +1587,20 @@
         });
 
         document.getElementById('grand-total').innerText = total;
+
+        // long press على الدفعات المستحقة
+        document.querySelectorAll('.history-item.due').forEach(el => {
+            let timer;
+            el.addEventListener('touchstart', () => {
+                timer = setTimeout(() => {
+                    const debtId = parseInt(el.dataset.debtId);
+                    const schedIdx = parseInt(el.dataset.schedIdx);
+                    openDueModal(debtId, schedIdx);
+                }, 500);
+            }, { passive: true });
+            el.addEventListener('touchend', () => clearTimeout(timer));
+            el.addEventListener('touchmove', () => clearTimeout(timer));
+        });
         initDrag();
         initPayLongPress();
     }
@@ -1618,7 +1723,8 @@
 
     const completedOverlay = document.getElementById('completed-modal-overlay');
     const scheduleOverlay = document.getElementById('schedule-modal-overlay');
-    const allOverlays = [editPayOverlay, payOverlay, addOverlay, editOverlay];
+    const dueOverlay = document.getElementById('due-modal-overlay');
+    const allOverlays = [editPayOverlay, payOverlay, addOverlay, editOverlay, dueOverlay];
 
     function syncOverlays() {
         const vh = window.visualViewport.height;
