@@ -1,6 +1,6 @@
 {
   "name": "Deyon - سجل الديون",
-  "short_name": "Deyon",
+  "short_name": "سجل الديون",
   "description": "تطبيق لتتبع وإدارة الديون",
   "start_url": "./",
   "display": "standalone",
