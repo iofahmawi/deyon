@@ -769,7 +769,7 @@
                 <input type="text" id="pay-note" placeholder="ملاحظات" style="text-align:center;padding-right:12px !important;">
             </div>
             <div class="input-wrap">
-                <input type="text" id="pay-date" placeholder="التاريخ: 2025/3/5" style="text-align:center;padding-right:12px !important;">
+                <input type="text" id="pay-date" inputmode="numeric" placeholder="2025-3-5" style="text-align:center;padding-right:12px !important;">
             </div>
             <div class="modal-btns">
                 <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
@@ -828,7 +828,7 @@
                 <input type="text" id="edit-pay-note" placeholder="ملاحظات" style="text-align:center;padding-right:12px !important;">
             </div>
             <div class="input-wrap">
-                <input type="text" id="edit-pay-date" placeholder="التاريخ: 2025/3/5" style="text-align:center;padding-right:12px !important;">
+                <input type="text" id="edit-pay-date" inputmode="numeric" placeholder="2025-3-5" style="text-align:center;padding-right:12px !important;">
             </div>
             <div class="modal-btns">
                 <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
@@ -889,6 +889,10 @@
             <div class="input-wrap">
                 <i class="fa-solid fa-list-ol"></i>
                 <input type="number" id="schedule-count" inputmode="numeric" placeholder="عدد الدفعات" style="padding-right:34px;">
+            </div>
+            <div class="input-wrap">
+                <i class="fa-solid fa-calendar-day"></i>
+                <input type="text" id="schedule-start-date" inputmode="numeric" placeholder="2025-3-5" dir="ltr" style="padding-right:34px;text-align:right;">
             </div>
             <div class="schedule-type-btns">
                 <button class="stype-btn active" data-type="monthly" onclick="selectType(this)">شهرية</button>
@@ -959,7 +963,7 @@
         document.getElementById('pay-amount').classList.remove('has-value');
         document.getElementById('pay-note').value = '';
         const now = new Date();
-        document.getElementById('pay-date').value = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
+        document.getElementById('pay-date').value = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
         document.getElementById('pay-modal-overlay').classList.add('active');
         setTimeout(() => document.getElementById('pay-amount').focus(), 100);
         document.getElementById('pay-confirm-btn').onclick = () => confirmPayment(id);
@@ -1030,12 +1034,13 @@
         document.getElementById('edit-pay-amount').value = pay.amount;
         document.getElementById('edit-pay-amount').classList.toggle('has-value', pay.amount !== '');
         document.getElementById('edit-pay-note').value = pay.note || '';
-        // تحويل التاريخ من Y/M/D إلى YYYY-MM-DD لحقل date
+        // تحويل التاريخ من Y/M/D إلى Y-M-D
         if (pay.date) {
             const [y, m, d] = pay.date.split('/').map(Number);
-            document.getElementById('edit-pay-date').value = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            document.getElementById('edit-pay-date').value = `${y}-${m}-${d}`;
+        } else {
+            document.getElementById('edit-pay-date').value = '';
         }
-        document.getElementById('edit-pay-date').value = pay.date || '';
         document.getElementById('edit-pay-modal-overlay').classList.add('active');
         setTimeout(() => document.getElementById('edit-pay-amount').focus(), 100);
         document.getElementById('edit-pay-confirm-btn').onclick = () => {
@@ -1075,8 +1080,8 @@
         const parts = str.split(/[\/\-\.]/).map(Number).filter(n => !isNaN(n));
         if (parts.length !== 3) return str;
         let y, m, d;
-        if (parts[0] > 31) { y = parts[0]; m = parts[1]; d = parts[2]; }       // YYYY/M/D
-        else if (parts[2] > 31) { d = parts[0]; m = parts[1]; y = parts[2]; }  // D/M/YYYY
+        if (parts[0] > 31) { y = parts[0]; m = parts[1]; d = parts[2]; }      // YYYY-M-D
+        else if (parts[2] > 31) { d = parts[0]; m = parts[1]; y = parts[2]; } // D-M-YYYY
         else return str;
         return `${y}/${m}/${d}`;
     }
@@ -1225,6 +1230,8 @@
         const debt = debts.find(d => d.id === id);
         document.getElementById('schedule-subtitle').textContent = debt.name + ' - ' + debt.remaining.toLocaleString();
         document.getElementById('schedule-count').value = '';
+        const today = new Date();
+        document.getElementById('schedule-start-date').value = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
         const existingType = (debt.scheduled && debt.scheduled.length && debt.scheduled[0].type) || null;
         selectedType = existingType || 'monthly';
         document.querySelectorAll('.stype-btn').forEach(b => b.classList.toggle('active', b.dataset.type === selectedType && !existingType));
@@ -1248,17 +1255,21 @@
         if (!count || count < 1 || !debt) return;
 
         const amount = Math.round(debt.remaining / count);
-        const now = new Date();
+        const rawDate = normalizeDate(document.getElementById('schedule-start-date').value.trim());
+        const parts = rawDate ? rawDate.split('/').map(Number) : [];
+        const startDate = (parts.length === 3 && !isNaN(parts[0]))
+            ? new Date(parts[0], parts[1]-1, parts[2])
+            : new Date();
         const scheduled = [];
 
         for (let i = 0; i < count; i++) {
-            const d = new Date(now);
-            if (selectedType === 'daily')   d.setDate(d.getDate() + i + 1);
-            if (selectedType === 'weekly')  d.setDate(d.getDate() + (i + 1) * 7);
-            if (selectedType === 'monthly') d.setMonth(d.getMonth() + i + 1);
+            const d = new Date(startDate);
+            if (selectedType === 'daily')   d.setDate(d.getDate() + i);
+            if (selectedType === 'weekly')  d.setDate(d.getDate() + i * 7);
+            if (selectedType === 'monthly') d.setMonth(d.getMonth() + i);
             scheduled.push({
                 amount,
-                date: `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`,
+                date: `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`,  
                 type: selectedType
             });
         }
@@ -1458,14 +1469,14 @@
                                 <div class="history-item" data-debt-id="${d.id}" data-pay-idx="${pi}">
                                     <span class="history-amount">${p.amount.toLocaleString()}</span>
                                     ${p.note ? `<span class="history-date" style="position:absolute; left:50%; transform:translateX(-50%);">${p.note}</span>` : ''}
-                                    <span class="history-date" style="margin-right:auto;"><span dir="ltr">${p.date.split('/').map(Number).join('/')}</span></span>
+                                    <span class="history-date" style="margin-right:auto;"><span dir="ltr">${p.date.split('/').map(Number).join('-')}</span></span>
                                 </div>
                              `).join('')}
                              ${d.scheduled && d.scheduled.length ? d.scheduled.map(s => `
                                 <div class="history-item scheduled">
                                     <span class="history-amount">${s.amount.toLocaleString()}</span>
                                     <span class="history-date" style="position:absolute; left:50%; transform:translateX(-50%); color:var(--text-muted);">غير مدفوعة</span>
-                                    <span class="history-date" style="margin-right:auto;"><span dir="ltr">${s.date.split('/').map(Number).join('/')}</span></span>
+                                    <span class="history-date" style="margin-right:auto;"><span dir="ltr">${s.date.split('/').map(Number).join('-')}</span></span>
                                 </div>
                              `).join('') : ''}
                            </div>` 
