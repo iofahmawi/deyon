@@ -3,7 +3,7 @@ const ASSETS = [
     './',
     './index.html',
     './manifest.json',
-    './icon-1024.png'
+    './icon-1440.png'
 ];
 
 self.addEventListener('install', e => {
