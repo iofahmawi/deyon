@@ -1,6 +1,6 @@
 <div dir="rtl">
 
-## 📒 سجل الديون - Deyon
+## 📒 سجل الديون
 
 [![version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/iofahmawi/deyon)
 [![PWA](https://img.shields.io/badge/PWA-Enabled-brightgreen)](https://iofahmawi.github.io/deyon/)
