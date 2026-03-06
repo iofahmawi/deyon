@@ -1321,10 +1321,12 @@
         window.visualViewport.addEventListener('resize', () => {
             const ratio = window.visualViewport.height / window.screen.height;
             if (ratio < 0.75) {
-                editPayOverlay.style.paddingTop = '32px';
+                const vh = window.visualViewport.height;
+                const centerPad = isPWA ? Math.round(vh * 0.22) + 'px' : '32px';
+                editPayOverlay.style.paddingTop = centerPad;
                 addOverlay.style.paddingTop = isPWA ? '33px' : '9px';
                 editOverlay.style.paddingTop = isPWA ? '33px' : '9px';
-                payOverlay.style.paddingTop = '32px';
+                payOverlay.style.paddingTop = centerPad;
                 exportPersonOverlay.style.paddingTop = '32px';
             } else {
                 editPayOverlay.style.paddingTop = '25%';
