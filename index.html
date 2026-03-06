@@ -954,7 +954,7 @@
 
     function openPayModal(id) {
         const debt = debts.find(d => d.id === id);
-        document.getElementById('pay-title').innerText = `تسديد — ${debt.name}`;
+        document.getElementById('pay-title').innerText = `تسديد - ${debt.name}`;
         document.getElementById('pay-amount').value = '';
         document.getElementById('pay-amount').classList.remove('has-value');
         document.getElementById('pay-note').value = '';
@@ -994,7 +994,7 @@
         const debt = debts.find(d => d.id === id);
         document.getElementById('del-modal-overlay').classList.add('active');
         document.getElementById('del-confirm-btn').onclick = () => {
-            // إذا مكتمل — أرشفة تلقائية عند الحذف
+            // إذا مكتمل + debt.remainingأرشفة تلقائية عند الحذف
             if (debt.remaining <= 0) {
                 const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
                 archived.unshift(debt);
@@ -1223,7 +1223,7 @@
     function openScheduleModal(id) {
         scheduleDebtId = id;
         const debt = debts.find(d => d.id === id);
-        document.getElementById('schedule-subtitle').textContent = debt.name + ' — ' + debt.remaining.toLocaleString();
+        document.getElementById('schedule-subtitle').textContent = debt.name + ' + debt.remaining' + debt.remaining.toLocaleString();
         document.getElementById('schedule-count').value = '';
         const existingType = (debt.scheduled && debt.scheduled.length && debt.scheduled[0].type) || null;
         selectedType = existingType || 'monthly';
@@ -1370,7 +1370,7 @@
             logging: false,
         });
 
-        // استعادة الأزرار فقط — تبقى البطاقة لوحدها
+        // استعادة الأزرار فقط + debt.remainingتبقى البطاقة لوحدها
         if (btnGroup) btnGroup.style.display = '';
         card.style.transition = '';
         card.style.transform = '';
@@ -1613,9 +1613,15 @@
         const vh = window.visualViewport.height;
         const ratio = vh / window.screen.height;
         allOverlays.forEach(ov => {
-            ov.style.height = vh + 'px';
-            ov.style.alignItems = 'center';
-            ov.style.paddingTop = '0';
+            if (ratio < 0.75) {
+                ov.style.height = vh + 'px';
+                ov.style.alignItems = 'center';
+                ov.style.paddingTop = '0';
+            } else {
+                ov.style.height = '';
+                ov.style.alignItems = 'flex-start';
+                ov.style.paddingTop = '20%';
+            }
         });
         // نوافذ التصدير والأرشيف تبقى بسلوكها الأصلي
         [exportPersonOverlay, completedOverlay].forEach(ov => {
