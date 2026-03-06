@@ -1,7 +1,7 @@
 {
   "name": "سجل الديون",
   "short_name": "سجل الديون",
-  "description": "تطبيق لتتبع وإدارة الديون",
+  "description": "تطبيق لإدارة الديون",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f0f4f8",
