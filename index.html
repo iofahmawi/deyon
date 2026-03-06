@@ -1130,10 +1130,12 @@
         document.getElementById('filter-bar-name').textContent = debt.name;
         // إخفاء البانر
         document.querySelector('.total-banner').style.display = 'none';
-        // وميض أخضر
+        // فتح البطاقة + وميض أخضر
         setTimeout(() => {
             const card = document.querySelector(`.debt-card[data-id="${id}"]`);
             if (!card) return;
+            const hist = document.getElementById(`hist-${id}`);
+            if (!hist || hist.style.display !== 'block') toggleHistory(id);
             card.style.transition = 'box-shadow 0.3s';
             card.style.boxShadow = '0 0 0 1px var(--success)';
             setTimeout(() => { card.style.boxShadow = ''; }, 700);
@@ -1157,9 +1159,16 @@
     }
 
     // ─── تصدير دين معين ───
+    function getAllExportList() {
+        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        const activeIds = new Set(debts.map(d => d.id));
+        const archivedOnly = archived.filter(d => !activeIds.has(d.id));
+        return [...debts, ...archivedOnly];
+    }
+
     function openExportPersonModal() {
         document.getElementById('export-search').value = '';
-        renderExportList(debts);
+        renderExportList(getAllExportList());
         document.getElementById('export-person-overlay').classList.add('active');
         setTimeout(() => document.getElementById('export-search').blur(), 50);
     }
@@ -1172,16 +1181,18 @@
             return;
         }
         list.forEach(d => {
+            const done = d.remaining <= 0;
             const btn = document.createElement('button');
             btn.style.cssText = 'display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.88rem;font-weight:700;color:var(--text-dark);cursor:pointer;text-align:right;';
-            btn.innerHTML = `<span>${d.name}</span><span style="margin-right:auto;font-size:0.78rem;color:var(--text-muted);">${d.remaining.toLocaleString()}</span>`;
+            btn.innerHTML = `<span>${d.name}</span><span style="margin-right:auto;font-size:0.78rem;color:${done ? 'var(--success)' : 'var(--text-muted)'};">${done ? 'مكتمل' : d.remaining.toLocaleString()}</span>`;
             btn.onclick = () => { closeExportPersonModal(); exportCardAsImage(d.id); };
             container.appendChild(btn);
         });
     }
 
     function filterExportList(q) {
-        const filtered = debts.filter(d => d.name.toLowerCase().includes(q.trim().toLowerCase()));
+        const all = getAllExportList();
+        const filtered = q.trim() ? all.filter(d => d.name.toLowerCase().includes(q.trim().toLowerCase())) : all;
         renderExportList(filtered);
     }
 
@@ -1200,7 +1211,8 @@
             });
         }
 
-        const debt = debts.find(d => d.id === id);
+        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        const debt = debts.find(d => d.id === id) || archived.find(d => d.id === id);
         if (!debt) return;
 
         // عرض البطاقة لوحدها أولاً
