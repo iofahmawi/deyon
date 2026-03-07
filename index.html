@@ -1965,11 +1965,17 @@
                 ov.style.paddingTop = '20%';
             }
         });
-        // نوافذ التصدير والأرشيف تبقى بسلوكها الأصلي
+        // نوافذ التصدير والأرشيف نفس سلوك باقي النوافذ
         [exportPersonOverlay, completedOverlay].forEach(ov => {
-            ov.style.height = '';
-            ov.style.alignItems = 'flex-start';
-            ov.style.paddingTop = ratio < 0.75 ? '32px' : '15%';
+            if (ratio < 0.75) {
+                ov.style.height = vh + 'px';
+                ov.style.alignItems = 'center';
+                ov.style.paddingTop = '0';
+            } else {
+                ov.style.height = '';
+                ov.style.alignItems = 'flex-start';
+                ov.style.paddingTop = '20%';
+            }
         });
         // نافذة الجدولة
         if (ratio < 0.75) {
