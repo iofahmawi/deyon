@@ -1307,7 +1307,7 @@
                 el.innerHTML = `
                     <div class="due-notif-info" onclick="scrollToDebtCard(${debt.id})" style="flex:1;cursor:pointer;">
                         <span class="due-notif-name"><i class="fa-solid fa-clock" style="margin-left:5px;color:var(--danger);font-size:0.75rem;"></i>${debt.name}</span>
-                        <span class="due-notif-amount">دفعة مستحقة • ${s.amount.toLocaleString()}</span>
+                        <span class="due-notif-amount">${s.amount.toLocaleString()} دفعة مستحقة</span>
                     </div>
                     <button class="due-notif-close" onclick="dismissDue('${key}')"><i class="fa-solid fa-xmark"></i></button>`;
                 container.appendChild(el);
