@@ -1024,20 +1024,20 @@
         document.getElementById('debt-note').value = '';
     }
 
-    function openPayModal(id) {
+    function openPayModal(id, forcedDueIdx = -1) {
         const debt = debts.find(d => d.id === id);
         document.getElementById('pay-title').innerText = `تسديد - ${debt.name}`;
         document.getElementById('pay-note').value = '';
         const now = new Date(); now.setHours(0,0,0,0);
         document.getElementById('pay-date').value = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
 
-        // إذا كان هناك دفعة مستحقة اليوم أو قبله — اقترح مبلغها
-        const dueIdx = debt.scheduled ? debt.scheduled.findIndex(s => {
+        // إذا جاء من ضغطة على دفعة مستحقة استخدم الـ index مباشرة
+        const dueIdx = forcedDueIdx !== -1 ? forcedDueIdx : (debt.scheduled ? debt.scheduled.findIndex(s => {
             const p = s.date.split('/').map(Number);
             return new Date(p[0], p[1]-1, p[2]) <= now;
-        }) : -1;
+        }) : -1);
 
-        if (dueIdx !== -1) {
+        if (dueIdx !== -1 && debt.scheduled && debt.scheduled[dueIdx]) {
             const dueAmount = debt.scheduled[dueIdx].amount;
             document.getElementById('pay-amount').value = dueAmount;
             document.getElementById('pay-amount').classList.add('has-value');
@@ -1725,16 +1725,12 @@
 
         // long press على الدفعات المستحقة
         document.querySelectorAll('.history-item.due').forEach(el => {
-            let timer;
-            el.addEventListener('touchstart', () => {
-                timer = setTimeout(() => {
-                    const debtId = parseInt(el.dataset.debtId);
-                    const schedIdx = parseInt(el.dataset.schedIdx);
-                    openDueModal(debtId, schedIdx);
-                }, 500);
-            }, { passive: true });
-            el.addEventListener('touchend', () => clearTimeout(timer));
-            el.addEventListener('touchmove', () => clearTimeout(timer));
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const debtId = parseInt(el.dataset.debtId);
+                const schedIdx = parseInt(el.dataset.schedIdx);
+                openPayModal(debtId, schedIdx);
+            });
         });
         initDrag();
         initPayLongPress();
