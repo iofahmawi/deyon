@@ -819,7 +819,7 @@
             <div class="input-wrap">
                 <input type="text" id="pay-note" placeholder="ملاحظات" style="text-align:center;padding-right:12px !important;">
             </div>
-            <div class="input-wrap">
+            <div class="input-wrap" id="pay-date-wrap">
                 <input type="text" id="pay-date" inputmode="numeric" placeholder="2025-3-5" style="text-align:center;padding-right:12px !important;">
             </div>
             <div id="postpone-wrap" style="display:none;margin-bottom:10px;">
@@ -1098,7 +1098,8 @@
             document.getElementById('pay-amount').classList.remove('has-value');
         }
 
-        // إظهار زر التأجيل فقط عند وجود دفعة مستحقة
+        // إخفاء حقل التاريخ عند وجود دفعة مستحقة
+        document.getElementById('pay-date-wrap').style.display = dueIdx !== -1 ? 'none' : '';
         const postponeWrap = document.getElementById('postpone-wrap');
         const postponeDate = document.getElementById('postpone-date');
         if (dueIdx !== -1) {
