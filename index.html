@@ -1245,6 +1245,7 @@
     }
 
     function toggleHistory(id) {
+        if (wasDragging) return;
         const el = document.getElementById('hist-' + id);
         el.style.display = el.style.display === 'block' ? 'none' : 'block';
     }
@@ -1770,7 +1771,7 @@
             const paid = d.original - d.remaining;
 
             container.innerHTML += `
-                <div class="debt-card" data-id="${d.id}" onclick="toggleHistory(${d.id})" style="cursor:pointer; animation: fadeIn 0.25s ${i*0.04}s both;">
+                <div class="debt-card" data-id="${d.id}" onclick="toggleHistory(${d.id})" draggable="${currentSort === 'manual' ? 'true' : 'false'}" style="cursor:pointer; animation: fadeIn 0.25s ${i*0.04}s both;">
 
                     <div class="card-name-row">
                         <div style="flex:1">
@@ -1876,77 +1877,50 @@
         });
     }
 
-    // ─── ترتيب بالضغط المطول ───
-    let pressTimer = null;
+    // ─── سحب وإفلات مباشر (مثل محرر M3U) ───
     let dragSrc = null;
+    let wasDragging = false;
+
+    function saveDragOrder() {
+        const ids = [...document.querySelectorAll('.debt-card')].map(c => parseInt(c.dataset.id));
+        debts = ids.map(id => debts.find(d => d.id === id)).filter(Boolean);
+        localStorage.setItem('my_debts_final_v3', JSON.stringify(debts));
+    }
 
     function initDrag() {
+        if (currentSort !== 'manual') return;
+
         document.querySelectorAll('.debt-card').forEach(card => {
-            // موبايل
-            card.addEventListener('touchstart', e => {
-                pressTimer = setTimeout(() => {
-                    const hist = card.querySelector('.payment-history');
-                    if (hist && hist.style.display === 'block') return;
-                    card.classList.add('long-press');
-                    card.setAttribute('draggable', true);
-                }, 500);
-            }, { passive: true });
-
-            card.addEventListener('touchend', () => {
-                clearTimeout(pressTimer);
-                card.classList.remove('long-press');
-            });
-
-            card.addEventListener('touchmove', () => {
-                clearTimeout(pressTimer);
-            }, { passive: true });
-
-            // ديسكتوب
-            card.addEventListener('mousedown', () => {
-                pressTimer = setTimeout(() => {
-                    const hist = card.querySelector('.payment-history');
-                    if (hist && hist.style.display === 'block') return;
-                    card.classList.add('long-press');
-                    card.setAttribute('draggable', true);
-                }, 500);
-            });
-
-            card.addEventListener('mouseup', () => {
-                clearTimeout(pressTimer);
-                card.classList.remove('long-press');
-            });
 
             card.addEventListener('dragstart', e => {
                 dragSrc = card;
+                wasDragging = false;
                 card.classList.add('dragging');
                 e.dataTransfer.effectAllowed = 'move';
             });
 
             card.addEventListener('dragend', () => {
-                card.classList.remove('dragging', 'long-press');
-                card.setAttribute('draggable', false);
+                card.classList.remove('dragging', 'drag-over');
                 document.querySelectorAll('.debt-card').forEach(c => c.classList.remove('drag-over'));
-                const ids = [...document.querySelectorAll('.debt-card')].map(c => parseInt(c.dataset.id));
-                debts = ids.map(id => debts.find(d => d.id === id)).filter(Boolean);
-                localStorage.setItem('my_debts_final_v3', JSON.stringify(debts));
+                wasDragging = true;
+                saveDragOrder();
+                setTimeout(() => { wasDragging = false; }, 300);
             });
 
             card.addEventListener('dragover', e => {
                 e.preventDefault();
-                if (card !== dragSrc) {
-                    card.classList.add('drag-over');
-                    const container = document.getElementById('list-container');
-                    const cards = [...container.querySelectorAll('.debt-card')];
-                    const srcIdx = cards.indexOf(dragSrc);
-                    const dstIdx = cards.indexOf(card);
-                    if (srcIdx < dstIdx) container.insertBefore(dragSrc, card.nextSibling);
-                    else container.insertBefore(dragSrc, card);
-                }
+                if (!dragSrc || card === dragSrc) return;
+                card.classList.add('drag-over');
+                const container = document.getElementById('list-container');
+                const cards = [...container.querySelectorAll('.debt-card')];
+                const srcIdx = cards.indexOf(dragSrc);
+                const dstIdx = cards.indexOf(card);
+                if (srcIdx < dstIdx) container.insertBefore(dragSrc, card.nextSibling);
+                else container.insertBefore(dragSrc, card);
             });
 
-            card.addEventListener('dragleave', () => {
-                card.classList.remove('drag-over');
-            });
+            card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+            card.addEventListener('drop', e => e.preventDefault());
         });
     }
 
