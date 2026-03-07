@@ -1741,26 +1741,14 @@
     }
 
     function initPayLongPress() {
-        document.querySelectorAll('.history-item').forEach(item => {
-            let pt = null;
+        document.querySelectorAll('.history-item:not(.scheduled)').forEach(item => {
             const debtId = parseInt(item.dataset.debtId);
             const payIdx = parseInt(item.dataset.payIdx);
-
-            const start = () => {
-                pt = setTimeout(() => {
-                    item.classList.remove('pressing');
-                    openEditPayModal(debtId, payIdx);
-                }, 500);
-                item.classList.add('pressing');
-            };
-            const cancel = () => { clearTimeout(pt); item.classList.remove('pressing'); };
-
-            item.addEventListener('touchstart', start, { passive: true });
-            item.addEventListener('touchend', cancel);
-            item.addEventListener('touchmove', cancel, { passive: true });
-            item.addEventListener('mousedown', start);
-            item.addEventListener('mouseup', cancel);
-            item.addEventListener('mouseleave', cancel);
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openEditPayModal(debtId, payIdx);
+            });
         });
     }
 
