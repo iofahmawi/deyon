@@ -1950,6 +1950,7 @@
     const scheduleOverlay = document.getElementById('schedule-modal-overlay');
     const dueOverlay = document.getElementById('due-modal-overlay');
     const allOverlays = [editPayOverlay, payOverlay, addOverlay, editOverlay, dueOverlay];
+    const editDebtSelectOverlay = document.getElementById('edit-debt-select-overlay');
 
     function syncOverlays() {
         const vh = window.visualViewport.height;
@@ -1965,18 +1966,29 @@
                 ov.style.paddingTop = '20%';
             }
         });
-        // نوافذ التصدير والأرشيف نفس سلوك باقي النوافذ
-        [exportPersonOverlay, completedOverlay].forEach(ov => {
+        // تصدير كصورة + تعديل دين — نفس السلوك
+        [exportPersonOverlay, editDebtSelectOverlay].forEach(ov => {
             if (ratio < 0.75) {
                 ov.style.height = vh + 'px';
-                ov.style.alignItems = 'center';
-                ov.style.paddingTop = '0';
+                ov.style.alignItems = 'flex-start';
+                ov.style.paddingTop = Math.max(window.visualViewport.offsetTop + 20, 20) + 'px';
             } else {
                 ov.style.height = '';
                 ov.style.alignItems = 'flex-start';
                 ov.style.paddingTop = '20%';
             }
         });
+        // نافذة الأرشيف - نفس سلوك باقي النوافذ
+        if (ratio < 0.75) {
+            completedOverlay.style.height = vh + 'px';
+            completedOverlay.style.alignItems = 'center';
+            completedOverlay.style.paddingTop = '0';
+        } else {
+            completedOverlay.style.height = '';
+            completedOverlay.style.alignItems = 'flex-start';
+            completedOverlay.style.paddingTop = '20%';
+        }
+
         // نافذة الجدولة
         if (ratio < 0.75) {
             const vh = window.visualViewport.height;
