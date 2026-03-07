@@ -1017,6 +1017,7 @@
                 <button class="sort-btn" data-sort="newest" onclick="applySort('newest')"><i class="fa-solid fa-clock-rotate-left" style="margin-left:8px;"></i>الأحدث إضافةً</button>
                 <button class="sort-btn" data-sort="oldest" onclick="applySort('oldest')"><i class="fa-solid fa-clock" style="margin-left:8px;"></i>الأقدم إضافةً</button>
                 <button class="sort-btn" data-sort="amount" onclick="applySort('amount')"><i class="fa-solid fa-arrow-down-wide-short" style="margin-left:8px;"></i>الأكبر مبلغاً</button>
+                <button class="sort-btn" data-sort="amount_asc" onclick="applySort('amount_asc')"><i class="fa-solid fa-arrow-up-short-wide" style="margin-left:8px;"></i>الأصغر مبلغاً</button>
                 <button class="sort-btn" data-sort="due" onclick="applySort('due')"><i class="fa-solid fa-calendar-day" style="margin-left:8px;"></i>الأقرب للاستحقاق</button>
                 <button class="sort-btn" data-sort="progress" onclick="applySort('progress')"><i class="fa-solid fa-chart-simple" style="margin-left:8px;"></i>الأقل تقدماً</button>
             </div>
@@ -1350,6 +1351,7 @@
         if (currentSort === 'newest') return arr.sort((a, b) => b.id - a.id);
         if (currentSort === 'oldest') return arr.sort((a, b) => a.id - b.id);
         if (currentSort === 'amount') return arr.sort((a, b) => b.remaining - a.remaining);
+        if (currentSort === 'amount_asc') return arr.sort((a, b) => a.remaining - b.remaining);
         if (currentSort === 'progress') return arr.sort((a, b) => (a.remaining / a.original) - (b.remaining / b.original)).reverse();
         if (currentSort === 'due') {
             return arr.sort((a, b) => {
