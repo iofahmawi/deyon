@@ -311,6 +311,28 @@
         .history-item:last-child { border: none; padding-bottom: 0; }
 
         .history-item.scheduled .history-amount { color: var(--text-muted); }
+        .sort-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            height: 44px;
+            padding: 0 14px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sort-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
         .history-item.due .history-amount { color: var(--danger); }
 
         .due-notif {
@@ -737,6 +759,7 @@
                 <div class="export-dropdown" id="main-menu-dropdown">
                     <button onclick="closeMainMenu(); openCompletedModal()"><i class="fa-solid fa-circle-check"></i> ديون مكتملة</button>
                     <button onclick="closeMainMenu(); openEditDebtModal()"><i class="fa-solid fa-pen-to-square"></i> تعديل دين</button>
+                    <button onclick="closeMainMenu(); openSortModal()"><i class="fa-solid fa-arrow-up-wide-short"></i> فرز الديون</button>
                     <button onclick="closeMainMenu(); document.getElementById('file-input').click()"><i class="fa-solid fa-file-arrow-up"></i> استيراد من ملف</button>
                     <button onclick="closeMainMenu(); openExportPersonModal()"><i class="fa-solid fa-user"></i> تصدير دين كصورة</button>
                     <button onclick="closeMainMenu(); exportData()"><i class="fa-solid fa-database"></i> تصدير الكل</button>
@@ -968,6 +991,29 @@
                 <input type="text" id="edit-debt-search" placeholder="ابحث عن اسم..." oninput="filterEditDebtList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;">
             </div>
             <div id="edit-debt-select-list" style="max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+            <div class="modal-btns" style="margin-top:14px;">
+                <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال الفرز -->
+    <div class="modal-overlay" id="sort-modal-overlay" onclick="closeModals()" style="align-items:flex-start; padding-top:20%;">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-top">
+                <div class="modal-ico" style="background:#eff6ff;color:var(--primary);"><i class="fa-solid fa-arrow-up-wide-short"></i></div>
+                <div>
+                    <p class="modal-title">فرز الديون</p>
+                    <p class="modal-subtitle">اختر طريقة العرض</p>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="sort-btn" data-sort="manual" onclick="applySort('manual')"><i class="fa-solid fa-hand-pointer" style="margin-left:8px;"></i>يدوي (الافتراضي)</button>
+                <button class="sort-btn" data-sort="newest" onclick="applySort('newest')"><i class="fa-solid fa-clock-rotate-left" style="margin-left:8px;"></i>الأحدث إضافةً</button>
+                <button class="sort-btn" data-sort="amount" onclick="applySort('amount')"><i class="fa-solid fa-arrow-down-wide-short" style="margin-left:8px;"></i>الأكبر مبلغاً</button>
+                <button class="sort-btn" data-sort="due" onclick="applySort('due')"><i class="fa-solid fa-calendar-day" style="margin-left:8px;"></i>الأقرب للاستحقاق</button>
+                <button class="sort-btn" data-sort="progress" onclick="applySort('progress')"><i class="fa-solid fa-chart-simple" style="margin-left:8px;"></i>الأقل تقدماً</button>
+            </div>
             <div class="modal-btns" style="margin-top:14px;">
                 <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
             </div>
@@ -1237,6 +1283,44 @@
     function filterEditDebtList(q) {
         const filtered = q.trim() ? debts.filter(d => d.name.includes(q.trim())) : debts;
         renderEditDebtList(filtered);
+    }
+
+    // ─── الفرز ───
+    let currentSort = 'manual';
+
+    function openSortModal() {
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.sort === currentSort);
+        });
+        document.getElementById('sort-modal-overlay').classList.add('active');
+    }
+
+    function applySort(type) {
+        currentSort = type;
+        closeModals();
+        render();
+    }
+
+    function getSortedDebts() {
+        const arr = [...debts];
+        if (currentSort === 'manual') return arr;
+        if (currentSort === 'newest') return arr.reverse();
+        if (currentSort === 'amount') return arr.sort((a, b) => b.remaining - a.remaining);
+        if (currentSort === 'progress') return arr.sort((a, b) => (a.remaining / a.original) - (b.remaining / b.original)).reverse();
+        if (currentSort === 'due') {
+            return arr.sort((a, b) => {
+                const getNext = d => {
+                    if (!d.scheduled || !d.scheduled.length) return Infinity;
+                    const dates = d.scheduled.map(s => {
+                        const p = s.date.split('/').map(Number);
+                        return new Date(p[0], p[1]-1, p[2]).getTime();
+                    });
+                    return Math.min(...dates);
+                };
+                return getNext(a) - getNext(b);
+            });
+        }
+        return arr;
     }
 
     // ─── القائمة الرئيسية ───
@@ -1635,7 +1719,8 @@
             return;
         }
 
-        debts.forEach((d, i) => {
+        const sortedDebts = getSortedDebts();
+        sortedDebts.forEach((d, i) => {
             total += d.remaining;
             const done = d.remaining <= 0;
             const pct  = Math.round(((d.original - d.remaining) / d.original) * 100);
