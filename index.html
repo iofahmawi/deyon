@@ -736,6 +736,7 @@
                 <button class="btn-icon" onclick="toggleMainMenu(event)"><i class="fa-solid fa-bars"></i></button>
                 <div class="export-dropdown" id="main-menu-dropdown">
                     <button onclick="closeMainMenu(); openCompletedModal()"><i class="fa-solid fa-circle-check"></i> ديون مكتملة</button>
+                    <button onclick="closeMainMenu(); openEditDebtModal()"><i class="fa-solid fa-pen-to-square"></i> تعديل دين</button>
                     <button onclick="closeMainMenu(); document.getElementById('file-input').click()"><i class="fa-solid fa-file-arrow-up"></i> استيراد من ملف</button>
                     <button onclick="closeMainMenu(); openExportPersonModal()"><i class="fa-solid fa-user"></i> تصدير دين كصورة</button>
                     <button onclick="closeMainMenu(); exportData()"><i class="fa-solid fa-database"></i> تصدير الكل</button>
@@ -948,6 +949,27 @@
                 <button class="mbtn mbtn-ok" id="due-pay-btn" style="width:100%;height:44px;"><i class="fa-solid fa-money-bill-transfer" style="margin-left:6px;"></i>سداد</button>
                 <button class="mbtn mbtn-cancel" id="due-reschedule-btn" style="width:100%;height:44px;"><i class="fa-solid fa-calendar-days" style="margin-left:6px;"></i>توزيع على باقي الدفعات</button>
                 <button class="mbtn mbtn-cancel" onclick="closeModals()" style="width:100%;height:44px;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال اختيار دين للتعديل -->
+    <div class="modal-overlay" id="edit-debt-select-overlay" onclick="closeModals()" style="align-items:flex-start; padding-top:20%;">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-top">
+                <div class="modal-ico" style="background:#eff6ff;color:var(--primary);"><i class="fa-solid fa-pen-to-square"></i></div>
+                <div>
+                    <p class="modal-title">تعديل دين</p>
+                    <p class="modal-subtitle">اختر الدين الذي تريد تعديله</p>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:0 12px;margin-bottom:10px;height:44px;">
+                <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0;"></i>
+                <input type="text" id="edit-debt-search" placeholder="ابحث عن اسم..." oninput="filterEditDebtList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;">
+            </div>
+            <div id="edit-debt-select-list" style="max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+            <div class="modal-btns" style="margin-top:14px;">
+                <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
             </div>
         </div>
     </div>
@@ -1186,6 +1208,35 @@
         a.href = URL.createObjectURL(blob);
         a.download = 'Backup.json';
         a.click();
+    }
+
+    // ─── تعديل دين من القائمة ───
+    function openEditDebtModal() {
+        document.getElementById('edit-debt-search').value = '';
+        renderEditDebtList(debts);
+        document.getElementById('edit-debt-select-overlay').classList.add('active');
+        setTimeout(() => document.getElementById('edit-debt-search').blur(), 50);
+    }
+
+    function renderEditDebtList(list) {
+        const container = document.getElementById('edit-debt-select-list');
+        container.innerHTML = '';
+        if (!list.length) {
+            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:0.85rem;">لا توجد نتائج</p>';
+            return;
+        }
+        list.forEach(d => {
+            const btn = document.createElement('button');
+            btn.style.cssText = 'display:flex;align-items:center;gap:10px;width:100%;height:44px;padding:0 12px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.88rem;font-weight:700;color:var(--text-dark);cursor:pointer;text-align:right;';
+            btn.innerHTML = `<span>${d.name}</span><span style="margin-right:auto;font-size:0.78rem;color:var(--text-muted);">${d.remaining.toLocaleString()}</span>`;
+            btn.onclick = () => { closeModals(); openEditModal(d.id); };
+            container.appendChild(btn);
+        });
+    }
+
+    function filterEditDebtList(q) {
+        const filtered = q.trim() ? debts.filter(d => d.name.includes(q.trim())) : debts;
+        renderEditDebtList(filtered);
     }
 
     // ─── القائمة الرئيسية ───
@@ -1595,7 +1646,7 @@
 
                     <div class="card-name-row">
                         <div style="flex:1">
-                            <div class="person-name" style="cursor:pointer;display:inline-block;" onclick="event.stopPropagation(); openEditModal(${d.id})">${d.name}</div>
+                            <div class="person-name">${d.name}</div>
                         </div>
                         <div style="display:flex; align-items:center; gap:8px;">
                             ${d.note ? `<div style="font-size:0.72rem;color:var(--text-muted);position:absolute;left:50%;transform:translateX(-50%)">${d.note}</div>` : ''}
