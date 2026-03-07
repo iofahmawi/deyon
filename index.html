@@ -295,9 +295,28 @@
 
         .history-item:last-child { border: none; padding-bottom: 0; }
 
-        .history-item.scheduled { opacity: 0.65; }
         .history-item.scheduled .history-amount { color: var(--text-muted); }
         .history-item.due .history-amount { color: var(--danger); }
+
+        .due-notif {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border: 1px solid #fecaca;
+            
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            animation: fadeIn 0.2s ease;
+        }
+        .due-notif-info { display: flex; flex-direction: column; gap: 2px; }
+        .due-notif-name { font-size: 0.88rem; font-weight: 700; color: var(--text-dark); }
+        .due-notif-amount { font-size: 0.78rem; color: var(--danger); font-weight: 700; }
+        .due-notif-close {
+            background: none; border: none; cursor: pointer;
+            color: var(--text-muted); font-size: 1rem; padding: 4px 8px;
+        }
 
         .scheduled-badge {
             font-size: 0.65rem;
@@ -731,6 +750,7 @@
         <div class="amount" id="grand-total">0</div>
     </div>
 
+    <div id="due-notifications"></div>
     <div id="list-container"></div>
 
     <button class="fab" onclick="openAddModal()">
@@ -1265,6 +1285,51 @@
         render();
     }
 
+    // ─── إشعارات الدفعات المستحقة ───
+    const dismissedDue = new Set();
+
+    function renderDueNotifications() {
+        const container = document.getElementById('due-notifications');
+        container.innerHTML = '';
+        const today = new Date(); today.setHours(0,0,0,0);
+        debts.forEach(debt => {
+            if (!debt.scheduled) return;
+            debt.scheduled.forEach((s, si) => {
+                const key = `${debt.id}-${si}-${s.date}`;
+                if (dismissedDue.has(key)) return;
+                const parts = s.date.split('/').map(Number);
+                const sDate = new Date(parts[0], parts[1]-1, parts[2]);
+                if (sDate > today) return;
+                const el = document.createElement('div');
+                el.className = 'due-notif';
+                el.style.cursor = 'pointer';
+                el.innerHTML = `
+                    <div class="due-notif-info" onclick="scrollToDebtCard(${debt.id})" style="flex:1;cursor:pointer;">
+                        <span class="due-notif-name"><i class="fa-solid fa-clock" style="margin-left:5px;color:var(--danger);font-size:0.75rem;"></i>${debt.name}</span>
+                        <span class="due-notif-amount">دفعة مستحقة • ${s.amount.toLocaleString()}</span>
+                    </div>
+                    <button class="due-notif-close" onclick="dismissDue('${key}')"><i class="fa-solid fa-xmark"></i></button>`;
+                container.appendChild(el);
+            });
+        });
+    }
+
+    function scrollToDebtCard(id) {
+        const card = document.querySelector(`.debt-card[data-id="${id}"]`);
+        if (!card) return;
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const hist = document.getElementById(`hist-${id}`);
+        if (!hist || hist.style.display !== 'block') toggleHistory(id);
+        card.style.transition = 'box-shadow 0.3s';
+        card.style.boxShadow = '0 0 0 1px var(--danger)';
+        setTimeout(() => { card.style.boxShadow = ''; }, 700);
+    }
+
+    function dismissDue(key) {
+        dismissedDue.add(key);
+        renderDueNotifications();
+    }
+
     // ─── الدفعة المستحقة ───
     function openDueModal(debtId, schedIdx) {
         const debt = debts.find(d => d.id === debtId);
@@ -1587,6 +1652,9 @@
         });
 
         document.getElementById('grand-total').innerText = total;
+
+        // إشعارات الدفعات المستحقة
+        renderDueNotifications();
 
         // long press على الدفعات المستحقة
         document.querySelectorAll('.history-item.due').forEach(el => {
