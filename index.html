@@ -1191,15 +1191,19 @@
 
         debt.payments.push({ amount, date: normalizeDate(date) || `${new Date().getFullYear()}/${new Date().getMonth()+1}/${new Date().getDate()}`, note });
 
-        // معالجة الجدولة إذا كانت هناك دفعة مستحقة
-        if (dueIdx !== -1 && debt.scheduled && debt.scheduled[dueIdx]) {
-            const dueAmount = debt.scheduled[dueIdx].amount;
-            debt.scheduled.splice(dueIdx, 1);
-            const diff = dueAmount - amount;
-            // إذا دفع أقل من المستحق — وزّع الفرق على الباقي
-            if (diff > 0 && debt.scheduled.length) {
-                const extra = Math.round((diff / debt.scheduled.length) * 100) / 100;
-                debt.scheduled.forEach(s => s.amount += extra);
+        // معالجة الجدولة — يسقط الدفعات كاملة بقدر المبلغ المدفوع
+        if (debt.scheduled && debt.scheduled.length) {
+            let remaining = amount;
+            while (remaining > 0 && debt.scheduled.length) {
+                const first = debt.scheduled[0];
+                if (remaining >= first.amount) {
+                    remaining = Math.round((remaining - first.amount) * 100) / 100;
+                    debt.scheduled.shift();
+                } else {
+                    // دفع جزئي — خصم من أول دفعة فقط
+                    first.amount = Math.round((first.amount - remaining) * 100) / 100;
+                    remaining = 0;
+                }
             }
         }
 
