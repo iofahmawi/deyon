@@ -658,10 +658,9 @@
             line-height: 1.7;
         }
 
-        .modal-btns { display: flex; gap: 8px; margin-top: 24px; }
+        .modal-btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(0,1fr)); gap: 8px; margin-top: 24px; }
 
         .mbtn {
-            flex: 1;
             padding: 0;
             height: 44px;
             min-height: 44px;
@@ -822,6 +821,12 @@
             </div>
             <div class="input-wrap">
                 <input type="text" id="pay-date" inputmode="numeric" placeholder="2025-3-5" style="text-align:center;padding-right:12px !important;">
+            </div>
+            <div id="postpone-wrap" style="display:none;margin-bottom:10px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <button class="mbtn mbtn-cancel" id="postpone-confirm-btn">تأجيل</button>
+                    <input type="text" id="postpone-date" inputmode="numeric" placeholder="2025-3-5" style="flex:1 1 0;min-width:0;height:44px;padding:0 12px;background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.88rem;text-align:center;outline:none;box-sizing:border-box;">
+                </div>
             </div>
             <div class="modal-btns">
                 <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
@@ -1091,6 +1096,37 @@
         } else {
             document.getElementById('pay-amount').value = '';
             document.getElementById('pay-amount').classList.remove('has-value');
+        }
+
+        // إظهار زر التأجيل فقط عند وجود دفعة مستحقة
+        const postponeWrap = document.getElementById('postpone-wrap');
+        const postponeDate = document.getElementById('postpone-date');
+        if (dueIdx !== -1) {
+            postponeWrap.style.display = 'block';
+            const debt2 = debts.find(d => d.id === id);
+            const due = debt2 && debt2.scheduled[dueIdx];
+            // حساب التاريخ بعد آخر دفعة في الجدول
+            const lastScheduled = debt2.scheduled[debt2.scheduled.length - 1];
+            const base = lastScheduled ? (() => {
+                const p = lastScheduled.date.split('/').map(Number);
+                return new Date(p[0], p[1]-1, p[2]);
+            })() : new Date();
+            const next = new Date(base);
+            if (due && due.type === 'monthly') next.setMonth(next.getMonth() + 1);
+            else if (due && due.type === 'weekly') next.setDate(next.getDate() + 7);
+            else next.setDate(next.getDate() + 1);
+            postponeDate.value = `${next.getFullYear()}-${next.getMonth()+1}-${next.getDate()}`;
+            document.getElementById('postpone-confirm-btn').onclick = () => {
+                if (!debt2 || !debt2.scheduled[dueIdx]) return;
+                const normalized = normalizeDate(postponeDate.value.trim());
+                if (!normalized) return;
+                const postponed = debt2.scheduled.splice(dueIdx, 1)[0];
+                postponed.date = normalized;
+                debt2.scheduled.push(postponed);
+                save(); closeModals();
+            };
+        } else {
+            postponeWrap.style.display = 'none';
         }
 
         document.getElementById('pay-modal-overlay').classList.add('active');
