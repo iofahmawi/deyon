@@ -58,6 +58,21 @@
 
         .data-actions { display: flex; gap: 8px; }
 
+        .btn-icon {
+            background: var(--card);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
         .btn-data {
             background: var(--card);
             color: var(--text-dark);
@@ -716,25 +731,14 @@
             <button class="btn-search-close" onclick="closeSearch()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="data-actions" id="header-actions">
-            <button class="btn-data" onclick="openSearch()" style="background:none;border:none;box-shadow:none;padding:6px;">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
-            <div class="export-wrap" id="import-wrap">
-                <button class="btn-data" onclick="toggleImportMenu(event)">
-                    <i class="fa-solid fa-file-import"></i> استيراد
-                </button>
-                <div class="export-dropdown" id="import-dropdown">
-                    <button onclick="closeImportMenu(); openCompletedModal()"><i class="fa-solid fa-circle-check"></i> ديون مكتملة</button>
-                    <button onclick="closeImportMenu(); document.getElementById('file-input').click()"><i class="fa-solid fa-file-arrow-up"></i> استيراد من ملف</button>
-                </div>
-            </div>
-            <div class="export-wrap" id="export-wrap">
-                <button class="btn-data" onclick="toggleExportMenu(event)">
-                    <i class="fa-solid fa-file-export"></i> تصدير
-                </button>
-                <div class="export-dropdown" id="export-dropdown">
-                    <button onclick="closeExportMenu(); openExportPersonModal()"><i class="fa-solid fa-user"></i> تصدير دين معين</button>
-                    <button onclick="closeExportMenu(); exportData()"><i class="fa-solid fa-database"></i> تصدير الكل</button>
+            <button class="btn-icon" onclick="openSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+            <div class="export-wrap" id="menu-wrap">
+                <button class="btn-icon" onclick="toggleMainMenu(event)"><i class="fa-solid fa-bars"></i></button>
+                <div class="export-dropdown" id="main-menu-dropdown">
+                    <button onclick="closeMainMenu(); openCompletedModal()"><i class="fa-solid fa-circle-check"></i> ديون مكتملة</button>
+                    <button onclick="closeMainMenu(); document.getElementById('file-input').click()"><i class="fa-solid fa-file-arrow-up"></i> استيراد من ملف</button>
+                    <button onclick="closeMainMenu(); openExportPersonModal()"><i class="fa-solid fa-user"></i> تصدير دين كصورة</button>
+                    <button onclick="closeMainMenu(); exportData()"><i class="fa-solid fa-database"></i> تصدير الكل</button>
                 </div>
             </div>
             <input type="file" id="file-input" onchange="importData(event)" accept=".json">
@@ -1183,6 +1187,17 @@
         a.download = 'Backup.json';
         a.click();
     }
+
+    // ─── القائمة الرئيسية ───
+    function toggleMainMenu(e) {
+        e.stopPropagation();
+        const dd = document.getElementById('main-menu-dropdown');
+        dd.classList.toggle('open');
+    }
+    function closeMainMenu() {
+        document.getElementById('main-menu-dropdown').classList.remove('open');
+    }
+    document.addEventListener('click', () => closeMainMenu());
 
     // ─── قائمة الاستيراد ───
     function toggleImportMenu(e) {
