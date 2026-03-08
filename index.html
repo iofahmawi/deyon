@@ -1361,7 +1361,9 @@
         const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'Backup.json';
+        const _d = new Date();
+        const _name = `Deyon ${_d.getDate()}-${_d.getMonth()+1}-${_d.getFullYear()}.json`;
+        a.download = _name;
         a.click();
     }
 
