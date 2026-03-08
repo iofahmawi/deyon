@@ -759,6 +759,7 @@
                     <button onclick="closeMainMenu(); openCompletedModal()"><i class="fa-solid fa-circle-check"></i> ديون مكتملة</button>
                     <button onclick="closeMainMenu(); openEditDebtModal()"><i class="fa-solid fa-pen-to-square"></i> تعديل دين</button>
                     <button onclick="closeMainMenu(); openSortModal()"><i class="fa-solid fa-arrow-up-wide-short"></i> فرز الديون</button>
+                    <button onclick="closeMainMenu(); openStatsModal()"><i class="fa-solid fa-chart-pie"></i> إحصائيات</button>
                     <button onclick="closeMainMenu(); document.getElementById('file-input').click()"><i class="fa-solid fa-file-arrow-up"></i> استيراد من ملف</button>
                     <button onclick="closeMainMenu(); openExportPersonModal()"><i class="fa-solid fa-user"></i> تصدير دين كصورة</button>
                     <button onclick="closeMainMenu(); exportData()"><i class="fa-solid fa-database"></i> تصدير الكل</button>
@@ -1023,6 +1024,23 @@
             </div>
             <div class="modal-btns" style="margin-top:14px;">
                 <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال الإحصائيات -->
+    <div class="modal-overlay" id="stats-modal-overlay" onclick="closeStatsModal()" style="align-items:center;">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-top">
+                <div class="modal-ico" style="background:#eff2ff;color:var(--primary);"><i class="fa-solid fa-chart-pie"></i></div>
+                <div>
+                    <p class="modal-title">الإحصائيات</p>
+                    <p class="modal-subtitle">ملخص ديونك الحالية</p>
+                </div>
+            </div>
+            <div id="stats-content" style="display:flex;flex-direction:column;gap:8px;"></div>
+            <div class="modal-btns" style="margin-top:14px;">
+                <button class="mbtn mbtn-cancel" onclick="closeStatsModal()">إغلاق</button>
             </div>
         </div>
     </div>
@@ -1638,6 +1656,61 @@
 
     function closeExportMenu() {
         document.getElementById('export-dropdown').classList.remove('open');
+    }
+
+    // ─── الإحصائيات ───
+    function openStatsModal() {
+        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        const activeIds = new Set(debts.map(d => d.id));
+        const archivedOnly = archived.filter(d => !activeIds.has(d.id));
+        const allDebts = [...debts, ...archivedOnly];
+
+        const totalOriginal   = debts.reduce((s, d) => s + d.original, 0);
+        const totalRemaining  = debts.reduce((s, d) => s + d.remaining, 0);
+        const totalCollected  = totalOriginal - totalRemaining;
+        const collectPct      = totalOriginal ? Math.round((totalCollected / totalOriginal) * 100) : 0;
+        const activeCount     = debts.filter(d => d.remaining > 0).length;
+        const doneCount       = debts.filter(d => d.remaining <= 0).length + archivedOnly.length;
+
+        const nextDue = debts.flatMap(d =>
+            (d.scheduled || []).map(s => ({ name: d.name, amount: s.amount, date: s.date }))
+        ).filter(s => {
+            const parts = s.date.split('/').map(Number);
+            const sd = new Date(parts[0], parts[1]-1, parts[2]);
+            const today = new Date(); today.setHours(0,0,0,0);
+            return sd >= today;
+        }).sort((a, b) => {
+            const toMs = d => { const p = d.split('/').map(Number); return new Date(p[0],p[1]-1,p[2]).getTime(); };
+            return toMs(a.date) - toMs(b.date);
+        })[0];
+
+        const biggestDebt = debts.filter(d => d.remaining > 0).sort((a,b) => b.remaining - a.remaining)[0];
+
+        const row = (icon, color, bg, label, value) =>
+            `<div style="display:flex;align-items:center;gap:10px;background:${bg};border-radius:10px;padding:8px 12px;">
+                <div style="width:30px;height:30px;border-radius:8px;background:white;display:flex;align-items:center;justify-content:center;color:${color};font-size:0.8rem;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+                    <i class="fa-solid ${icon}"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:0.65rem;color:#64748b;font-weight:600;">${label}</div>
+                    <div style="font-size:0.88rem;font-weight:900;color:#1e293b;">${value}</div>
+                </div>
+            </div>`;
+
+        document.getElementById('stats-content').innerHTML =
+            row('fa-money-bills',       '#4361ee','#eff2ff', 'إجمالي الديون الكلية',  totalOriginal.toLocaleString()) +
+            row('fa-circle-check',      '#10b981','#d1fae5', 'إجمالي المحصّل',         totalCollected.toLocaleString()) +
+            row('fa-hourglass-half',    '#ef4444','#fff0f0', 'إجمالي المتبقي',         totalRemaining.toLocaleString()) +
+            row('fa-percent',           '#f97316','#fff7ed', 'نسبة التحصيل',           collectPct + '%') +
+            row('fa-user-clock',        '#4361ee','#eff2ff', 'ديون نشطة / مكتملة',    activeCount + ' / ' + doneCount) +
+            (biggestDebt ? row('fa-arrow-up-wide-short','#ef4444','#fff0f0','أكبر دين متبقي', biggestDebt.name + ' — ' + biggestDebt.remaining.toLocaleString()) : '') +
+            (nextDue     ? row('fa-calendar-day',       '#f97316','#fff7ed','أقرب دفعة مستحقة', nextDue.name + ' — ' + nextDue.amount.toLocaleString()) : '');
+
+        document.getElementById('stats-modal-overlay').classList.add('active');
+    }
+
+    function closeStatsModal() {
+        document.getElementById('stats-modal-overlay').classList.remove('active');
     }
 
     // ─── تصدير دين معين ───
