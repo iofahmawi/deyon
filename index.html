@@ -356,6 +356,34 @@
             color: var(--text-muted); font-size: 1rem; padding: 4px 8px;
         }
 
+        /* ─── إشعار النسخ الاحتياطي ─── */
+        #backup-toast {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border: 1px solid #bfdbfe;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            animation: fadeIn 0.2s ease;
+            gap: 10px;
+        }
+        #backup-toast.show { display: flex; }
+        .backup-toast-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .backup-toast-title { font-size: 0.82rem; font-weight: 700; color: var(--text-dark); }
+        .backup-toast-sub { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+        .backup-toast-btn {
+            background: #eff6ff; border: 1px solid #bfdbfe; color: #2563eb;
+            font-family: inherit; font-size: 0.75rem; font-weight: 700;
+            padding: 5px 10px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+        }
+        .backup-toast-close {
+            background: none; border: none; cursor: pointer;
+            color: var(--text-muted); font-size: 0.9rem; padding: 4px 6px;
+        }
+
         .scheduled-badge {
             font-size: 0.65rem;
             font-weight: 700;
@@ -780,6 +808,14 @@
     </div>
 
     <div id="due-notifications"></div>
+    <div id="backup-toast">
+        <div class="backup-toast-info">
+            <span class="backup-toast-title"><i class="fa-solid fa-cloud-arrow-up" style="margin-left:5px;color:#2563eb;font-size:0.75rem;"></i>لا تنسَ النسخة الاحتياطية</span>
+            <span class="backup-toast-sub">تم تعديل البيانات</span>
+        </div>
+        <button class="backup-toast-btn" onclick="dismissBackupToast(); exportData()"><i class="fa-solid fa-database" style="margin-left:4px;"></i>تصدير</button>
+        <button class="backup-toast-close" onclick="dismissBackupToast()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
     <div id="list-container"></div>
 
     <button class="fab" onclick="openAddModal()">
@@ -1304,6 +1340,17 @@
         });
         localStorage.setItem('my_debts_final_v3', JSON.stringify(debts));
         render();
+        showBackupToast();
+    }
+
+    let backupToastTimer = null;
+    function showBackupToast() {
+        const toast = document.getElementById('backup-toast');
+        toast.classList.add('show');
+    }
+
+    function dismissBackupToast() {
+        document.getElementById('backup-toast').classList.remove('show');
     }
 
     function exportData() {
