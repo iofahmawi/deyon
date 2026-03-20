@@ -772,7 +772,7 @@
     <header>
         <h1 id="header-title">سجل الديون</h1>
         <div id="search-bar">
-            <input type="text" id="search-input" placeholder="ابحث عن اسم..." oninput="renderSearch(this.value)" onkeydown="if(event.key==='Enter')this.blur();">
+            <input type="text" id="search-input" placeholder="ابحث بالاسم أو الملاحظة أو المبلغ..." oninput="renderSearch(this.value)" onkeydown="if(event.key==='Enter')this.blur();">
             <button class="btn-search-close" onclick="closeSearch()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="data-actions" id="header-actions">
@@ -2162,7 +2162,12 @@
     function renderSearch(query) {
         const q = query.trim().toLowerCase();
         if (!q) { render(); return; }
-        const filtered = debts.filter(d => d.name.toLowerCase().includes(q));
+        const filtered = debts.filter(d =>
+            d.name.toLowerCase().includes(q) ||
+            (d.note && d.note.toLowerCase().includes(q)) ||
+            String(d.original).includes(q) ||
+            String(d.remaining).includes(q)
+        );
         const container = document.getElementById('list-container');
         container.innerHTML = '';
         if (!filtered.length) {
