@@ -2091,7 +2091,7 @@
         });
 
         document.getElementById('grand-total').innerText = total.toLocaleString();
-        const totalOriginalActive = debts.filter(d => d.remaining > 0).reduce((s, d) => s + d.original, 0);
+        const totalOriginalActive = sortedDebts.filter(d => d.remaining > 0).reduce((s, d) => s + d.original, 0);
         document.getElementById('grand-original').innerText = totalOriginalActive.toLocaleString();
 
         // إشعارات الدفعات المستحقة
