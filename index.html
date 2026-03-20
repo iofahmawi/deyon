@@ -1037,6 +1037,10 @@
                     <p class="modal-subtitle">اختر الدين الذي تريد تعديله</p>
                 </div>
             </div>
+            <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:10px;">
+                <button id="edit-debt-tab-li" onclick="switchEditDebtTab('لي')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:var(--primary);color:white;transition:all 0.2s;">ديون لي</button>
+                <button id="edit-debt-tab-alay" onclick="switchEditDebtTab('علي')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">ديون علي</button>
+            </div>
             <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:0 12px;margin-bottom:10px;height:44px;">
                 <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0;"></i>
                 <input type="text" autocomplete="new-password" id="edit-debt-search" placeholder="ابحث عن اسم..." oninput="filterEditDebtList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;" onkeydown="if(event.key==='Enter')this.blur();">
@@ -1414,9 +1418,26 @@
     }
 
     // ─── تعديل دين من القائمة ───
-    function openEditDebtModal() {
+    let currentEditDebtTab = 'لي';
+
+    function switchEditDebtTab(type) {
+        currentEditDebtTab = type;
+        document.getElementById('edit-debt-tab-li').style.background   = type === 'لي'  ? 'var(--primary)' : 'transparent';
+        document.getElementById('edit-debt-tab-li').style.color        = type === 'لي'  ? 'white' : 'var(--text-muted)';
+        document.getElementById('edit-debt-tab-alay').style.background = type === 'علي' ? 'var(--primary)' : 'transparent';
+        document.getElementById('edit-debt-tab-alay').style.color      = type === 'علي' ? 'white' : 'var(--text-muted)';
         document.getElementById('edit-debt-search').value = '';
-        renderEditDebtList(debts);
+        renderEditDebtList(debts.filter(d => type === 'لي' ? (!d.type || d.type === 'لي') : d.type === 'علي'));
+    }
+
+    function openEditDebtModal() {
+        currentEditDebtTab = 'لي';
+        document.getElementById('edit-debt-tab-li').style.background   = 'var(--primary)';
+        document.getElementById('edit-debt-tab-li').style.color        = 'white';
+        document.getElementById('edit-debt-tab-alay').style.background = 'transparent';
+        document.getElementById('edit-debt-tab-alay').style.color      = 'var(--text-muted)';
+        document.getElementById('edit-debt-search').value = '';
+        renderEditDebtList(debts.filter(d => !d.type || d.type === 'لي'));
         document.getElementById('edit-debt-select-overlay').classList.add('active');
         setTimeout(() => document.getElementById('edit-debt-search').blur(), 50);
     }
@@ -1438,7 +1459,8 @@
     }
 
     function filterEditDebtList(q) {
-        const filtered = q.trim() ? debts.filter(d => d.name.includes(q.trim())) : debts;
+        const byType = debts.filter(d => currentEditDebtTab === 'لي' ? (!d.type || d.type === 'لي') : d.type === 'علي');
+        const filtered = q.trim() ? byType.filter(d => d.name.includes(q.trim())) : byType;
         renderEditDebtList(filtered);
     }
 
