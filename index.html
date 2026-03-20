@@ -147,6 +147,8 @@
             overflow: hidden;
             display: flex;
             gap: 0;
+            align-items: center;
+            min-height: 88px;
         }
 
         .total-banner::after {
@@ -161,12 +163,24 @@
 
         .banner-section {
             flex: 1;
+            white-space: nowrap;
         }
 
         .banner-section + .banner-section {
             border-right: 1px solid rgba(255,255,255,0.2);
             padding-right: 20px;
             margin-right: 4px;
+            overflow: hidden;
+            transition: max-width 0.35s ease, opacity 0.3s ease, padding 0.35s ease, margin 0.35s ease, border 0.35s ease;
+            max-width: 300px;
+        }
+
+        .banner-section + .banner-section.hidden {
+            max-width: 0;
+            opacity: 0;
+            padding-right: 0;
+            margin-right: 0;
+            border-right: none;
         }
 
         .total-banner small {
@@ -785,11 +799,11 @@
     </div>
 
     <div class="total-banner">
-        <div class="banner-section">
+        <div class="banner-section" id="banner-remaining" onclick="toggleBannerOriginal()" style="cursor:pointer;">
             <small>الديون المتبقية</small>
             <div class="amount" id="grand-total">0</div>
         </div>
-        <div class="banner-section">
+        <div class="banner-section" id="banner-original" style="transition: all 0.3s;">
             <small>إجمالي الديون</small>
             <div class="amount" id="grand-original">0</div>
         </div>
@@ -1088,9 +1102,8 @@
     }
 
     function closeMenus() {
-        if(document.getElementById('floating-menu')) {
-            document.getElementById('floating-menu').classList.remove('open');
-        }
+        const el = document.getElementById('floating-menu');
+        if (el) el.classList.remove('open');
     }
 
     function openAddModal() {
@@ -1307,6 +1320,23 @@
         debt.remaining = debt.original - paid;
     }
 
+    function toggleBannerOriginal() {
+        const el = document.getElementById('banner-original');
+        if (!el) return;
+        const hidden = el.classList.toggle('hidden');
+        localStorage.setItem('bannerOriginalHidden', hidden ? '1' : '0');
+    }
+
+    function initBanner() {
+        const el = document.getElementById('banner-original');
+        if (!el) return;
+        if (localStorage.getItem('bannerOriginalHidden') === '1') {
+            el.classList.add('hidden');
+        } else {
+            el.classList.remove('hidden');
+        }
+    }
+
     function save() {
         debts.forEach(d => {
             d.payments.sort((a, b) => parseDate(a.date) - parseDate(b.date));
@@ -1410,7 +1440,8 @@
         dd.classList.toggle('open');
     }
     function closeMainMenu() {
-        document.getElementById('main-menu-dropdown').classList.remove('open');
+        const el = document.getElementById('main-menu-dropdown');
+        if (el) el.classList.remove('open');
     }
     document.addEventListener('click', () => closeMainMenu());
 
@@ -1422,7 +1453,8 @@
     }
 
     function closeImportMenu() {
-        document.getElementById('import-dropdown').classList.remove('open');
+        const el = document.getElementById('import-dropdown');
+        if (el) el.classList.remove('open');
     }
 
     // ─── الديون المكتملة ───
@@ -1514,6 +1546,7 @@
         document.getElementById('filter-bar').style.display = 'none';
         document.querySelector('.total-banner').style.display = '';
         render();
+        initBanner();
     }
 
     // ─── إشعارات الدفعات المستحقة ───
@@ -1671,7 +1704,8 @@
     }
 
     function closeExportMenu() {
-        document.getElementById('export-dropdown').classList.remove('open');
+        const el = document.getElementById('export-dropdown');
+        if (el) el.classList.remove('open');
     }
 
     // ─── الإحصائيات ───
@@ -2134,6 +2168,7 @@
     }
 
     render();
+    initBanner();
 
     document.getElementById('pay-amount').addEventListener('input', function() {
         this.classList.toggle('has-value', this.value !== '');
