@@ -825,6 +825,10 @@
                     <p class="modal-subtitle">أضف اسم الشخص والمبلغ</p>
                 </div>
             </div>
+            <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:10px;">
+                <button id="type-btn-li" onclick="setDebtType('لي')" style="flex:1;border:none;padding:8px;border-radius:8px;font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;background:var(--primary);color:white;transition:all 0.2s;">دين لي</button>
+                <button id="type-btn-alay" onclick="setDebtType('علي')" style="flex:1;border:none;padding:8px;border-radius:8px;font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">دين علي</button>
+            </div>
             <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" id="name" placeholder="اسم الشخص"></div>
             <div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" id="amount" placeholder="المبلغ" inputmode="decimal"></div>
             <div class="input-wrap"><i class="fa-solid fa-tag"></i><input type="text" id="debt-note" placeholder="مثلاً: دين سيارة" style="text-align:right;padding-right:34px !important;"></div>
@@ -1034,7 +1038,7 @@
     </div>
 
     <!-- مودال الفرز -->
-    <div class="modal-overlay" id="sort-modal-overlay" onclick="closeModals()" style="align-items:flex-start; padding-top:25%;">
+    <div class="modal-overlay" id="sort-modal-overlay" onclick="closeModals()" style="align-items:center;">
         <div class="modal" onclick="event.stopPropagation()">
             <div class="modal-top">
                 <div class="modal-ico" style="background:#eff6ff;color:var(--primary);"><i class="fa-solid fa-arrow-up-wide-short"></i></div>
@@ -1045,6 +1049,8 @@
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
                 <button class="sort-btn" data-sort="manual" onclick="applySort('manual')"><i class="fa-solid fa-hand-pointer" style="margin-left:8px;"></i>يدوي (الافتراضي)</button>
+                <button class="sort-btn" data-sort="type_li" onclick="applySort('type_li')"><i class="fa-solid fa-arrow-right-to-bracket" style="margin-left:8px;"></i>ديون لي</button>
+                <button class="sort-btn" data-sort="type_alay" onclick="applySort('type_alay')"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-left:8px;"></i>ديون علي</button>
                 <button class="sort-btn" data-sort="newest" onclick="applySort('newest')"><i class="fa-solid fa-clock-rotate-left" style="margin-left:8px;"></i>الأحدث إضافةً</button>
                 <button class="sort-btn" data-sort="oldest" onclick="applySort('oldest')"><i class="fa-solid fa-clock" style="margin-left:8px;"></i>الأقدم إضافةً</button>
                 <button class="sort-btn" data-sort="amount" onclick="applySort('amount')"><i class="fa-solid fa-arrow-down-wide-short" style="margin-left:8px;"></i>الأكبر مبلغاً</button>
@@ -1111,17 +1117,28 @@
         setTimeout(() => document.getElementById('name').focus(), 100);
     }
 
+    let currentDebtType = 'لي';
+
+    function setDebtType(type) {
+        currentDebtType = type;
+        document.getElementById('type-btn-li').style.background   = type === 'لي'   ? 'var(--primary)' : 'transparent';
+        document.getElementById('type-btn-li').style.color        = type === 'لي'   ? 'white' : 'var(--text-muted)';
+        document.getElementById('type-btn-alay').style.background = type === 'علي' ? 'var(--primary)' : 'transparent';
+        document.getElementById('type-btn-alay').style.color      = type === 'علي' ? 'white' : 'var(--text-muted)';
+    }
+
     function addDebt() {
         const name = document.getElementById('name').value.trim();
         const amount = parseFloat(document.getElementById('amount').value);
         const note = document.getElementById('debt-note').value.trim();
         if (!name || isNaN(amount) || amount <= 0) return;
-        debts.unshift({ id: Date.now(), name, original: amount, remaining: amount, note, payments: [] });
+        debts.unshift({ id: Date.now(), name, original: amount, remaining: amount, note, type: currentDebtType, payments: [] });
         save(); closeModals();
         document.getElementById('name').value = '';
         document.getElementById('amount').value = '';
         document.getElementById('amount').classList.remove('has-value');
         document.getElementById('debt-note').value = '';
+        setDebtType('لي');
     }
 
     function openPayModal(id, forcedDueIdx = -1) {
@@ -1424,6 +1441,8 @@
         if (currentSort === 'oldest') return arr.sort((a, b) => a.id - b.id);
         if (currentSort === 'amount') return arr.sort((a, b) => b.remaining - a.remaining);
         if (currentSort === 'amount_asc') return arr.sort((a, b) => a.remaining - b.remaining);
+        if (currentSort === 'type_li')   return arr.filter(d => !d.type || d.type === 'لي');
+        if (currentSort === 'type_alay') return arr.filter(d => d.type === 'علي');
         if (currentSort === 'progress') return arr.sort((a, b) => (a.remaining / a.original) - (b.remaining / b.original)).reverse();
         if (currentSort === 'due') {
             return arr.sort((a, b) => {
