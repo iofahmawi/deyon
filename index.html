@@ -1210,10 +1210,18 @@
 
     function openDelModal(id) {
         const debt = debts.find(d => d.id === id);
+        const isDone = debt.remaining <= 0;
         document.getElementById('del-modal-overlay').classList.add('active');
+        document.querySelector('#del-modal-overlay .modal-title').textContent = isDone ? 'نقل إلى المكتملة' : 'تأكيد الحذف';
+        document.querySelector('#del-modal-overlay .modal-ico').className = isDone ? 'modal-ico' : 'modal-ico del';
+        document.querySelector('#del-modal-overlay .modal-ico i').className = isDone ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation';
+        document.getElementById('del-modal-desc').textContent = isDone
+            ? 'سيتم نقل هذا الدين إلى قسم الديون المكتملة وإخفاؤه من الشاشة الرئيسية.'
+            : 'سيتم حذف هذا الدين نهائياً ولا يمكن التراجع عن هذا الإجراء.';
+        document.getElementById('del-confirm-btn').textContent = isDone ? 'نقل' : 'احذف';
+        document.getElementById('del-confirm-btn').className = isDone ? 'mbtn mbtn-ok' : 'mbtn mbtn-del';
         document.getElementById('del-confirm-btn').onclick = () => {
-            // إذا مكتمل + debt.remainingأرشفة تلقائية عند الحذف
-            if (debt.remaining <= 0) {
+            if (isDone) {
                 const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
                 archived.unshift(debt);
                 localStorage.setItem('my_debts_archived', JSON.stringify(archived));
