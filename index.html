@@ -602,7 +602,7 @@
 
         input, textarea { user-select: text; -webkit-user-select: text; }
 
-        .input-wrap { position: relative; margin-bottom: 7px; }
+        .input-wrap { position: relative; margin-bottom: 10px; }
 
         .input-wrap i {
             position: absolute;
@@ -632,6 +632,7 @@
         .modal input:focus {
             border-color: var(--primary);
             background: white;
+            box-shadow: 0 0 0 3px rgba(67,97,238,0.1);
         }
 
         #pay-amount,
@@ -681,7 +682,7 @@
             line-height: 1.7;
         }
 
-        .modal-btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(0,1fr)); gap: 8px; margin-top: 16px; }
+        .modal-btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(0,1fr)); gap: 8px; margin-top: 24px; }
 
         .mbtn {
             padding: 0;
@@ -771,7 +772,7 @@
     <header>
         <h1 id="header-title">سجل الديون</h1>
         <div id="search-bar">
-            <input type="text" autocomplete="new-password" id="search-input" placeholder="ابحث..." oninput="renderSearch(this.value)" onkeydown="if(event.key==='Enter')this.blur();">
+            <input type="text" id="search-input" placeholder="ابحث..." oninput="renderSearch(this.value)" onkeydown="if(event.key==='Enter')this.blur();">
             <button class="btn-search-close" onclick="closeSearch()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="data-actions" id="header-actions">
@@ -824,13 +825,9 @@
                     <p class="modal-subtitle">أضف اسم الشخص والمبلغ</p>
                 </div>
             </div>
-            <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:10px;">
-                <button id="type-btn-li" onclick="setDebtType('لي')" style="flex:1;border:none;padding:8px;border-radius:8px;font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;background:var(--primary);color:white;transition:all 0.2s;">دين لي</button>
-                <button id="type-btn-alay" onclick="setDebtType('علي')" style="flex:1;border:none;padding:8px;border-radius:8px;font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">دين علي</button>
-            </div>
-            <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" autocomplete="new-password" id="name" placeholder="اسم الشخص"></div>
-            <div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" autocomplete="new-password" id="amount" placeholder="المبلغ" inputmode="decimal"></div>
-            <div class="input-wrap"><i class="fa-solid fa-tag"></i><input type="text" autocomplete="new-password" id="debt-note" placeholder="مثلاً: دين سيارة" style="text-align:right;padding-right:34px !important;"></div>
+            <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" id="name" placeholder="اسم الشخص"></div>
+            <div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" id="amount" placeholder="المبلغ" inputmode="decimal"></div>
+            <div class="input-wrap"><i class="fa-solid fa-tag"></i><input type="text" id="debt-note" placeholder="مثلاً: دين سيارة" style="text-align:right;padding-right:34px !important;"></div>
             <div class="modal-btns">
                 <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
                 <button class="mbtn mbtn-ok" onclick="addDebt()">حفظ</button>
@@ -848,18 +845,18 @@
                 </div>
             </div>
             <div class="input-wrap">
-                <input type="number" autocomplete="new-password" id="pay-amount" inputmode="decimal" placeholder="المبلغ">
+                <input type="number" id="pay-amount" inputmode="decimal" placeholder="المبلغ">
             </div>
             <div class="input-wrap">
-                <input type="text" autocomplete="new-password" id="pay-note" placeholder="ملاحظات" style="text-align:center;padding-right:12px !important;">
+                <input type="text" id="pay-note" placeholder="ملاحظات" style="text-align:center;padding-right:12px !important;">
             </div>
             <div class="input-wrap" id="pay-date-wrap">
-                <input type="text" autocomplete="new-password" id="pay-date" inputmode="numeric" placeholder="2025-3-5" style="text-align:center;padding-right:12px !important;">
+                <input type="text" id="pay-date" inputmode="numeric" placeholder="2025-3-5" style="text-align:center;padding-right:12px !important;">
             </div>
             <div id="postpone-wrap" style="display:none;margin-bottom:10px;">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                     <button class="mbtn mbtn-cancel" id="postpone-confirm-btn">تأجيل</button>
-                    <input type="text" autocomplete="new-password" id="postpone-date" inputmode="numeric" placeholder="2025-3-5" style="flex:1 1 0;min-width:0;height:44px;padding:0 12px;background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.88rem;text-align:center;outline:none;box-sizing:border-box;">
+                    <input type="text" id="postpone-date" inputmode="numeric" placeholder="2025-3-5" style="flex:1 1 0;min-width:0;height:44px;padding:0 12px;background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.88rem;text-align:center;outline:none;box-sizing:border-box;">
                 </div>
             </div>
             <div class="modal-btns">
@@ -893,9 +890,9 @@
                     <p class="modal-subtitle">عدّل الاسم أو المبلغ الكلي</p>
                 </div>
             </div>
-            <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" autocomplete="new-password" id="edit-name" placeholder="اسم الشخص"></div>
-            <div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" autocomplete="new-password" id="edit-amount" placeholder="المبلغ الكلي" inputmode="decimal"></div>
-            <div class="input-wrap"><i class="fa-solid fa-tag"></i><input type="text" autocomplete="new-password" id="edit-debt-note" placeholder="مثلاً: دين سيارة" style="text-align:right;padding-right:34px !important;"></div>
+            <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" id="edit-name" placeholder="اسم الشخص"></div>
+            <div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" id="edit-amount" placeholder="المبلغ الكلي" inputmode="decimal"></div>
+            <div class="input-wrap"><i class="fa-solid fa-tag"></i><input type="text" id="edit-debt-note" placeholder="مثلاً: دين سيارة" style="text-align:right;padding-right:34px !important;"></div>
             <div class="modal-btns">
                 <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
                 <button class="mbtn mbtn-ok" id="edit-confirm-btn">حفظ</button>
@@ -913,13 +910,13 @@
                 </div>
             </div>
             <div class="input-wrap">
-                <input type="number" autocomplete="new-password" id="edit-pay-amount" inputmode="decimal" placeholder="المبلغ" style="text-align:center;padding:0 12px !important;">
+                <input type="number" id="edit-pay-amount" inputmode="decimal" placeholder="المبلغ" style="text-align:center;padding:0 12px !important;">
             </div>
             <div class="input-wrap">
-                <input type="text" autocomplete="new-password" id="edit-pay-note" placeholder="ملاحظات" style="text-align:center;padding-right:12px !important;">
+                <input type="text" id="edit-pay-note" placeholder="ملاحظات" style="text-align:center;padding-right:12px !important;">
             </div>
             <div class="input-wrap">
-                <input type="text" autocomplete="new-password" id="edit-pay-date" inputmode="numeric" placeholder="2025-3-5" style="text-align:center;padding-right:12px !important;">
+                <input type="text" id="edit-pay-date" inputmode="numeric" placeholder="2025-3-5" style="text-align:center;padding-right:12px !important;">
             </div>
             <div class="modal-btns">
                 <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
@@ -939,7 +936,7 @@
                     <p class="modal-subtitle">اختر الشخص لتصدير بطاقته كصورة</p>
                 </div>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:0 12px;margin-bottom:10px;height:44px;"><i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0;"></i><input type="text" autocomplete="new-password" id="export-search" placeholder="ابحث عن اسم..." oninput="filterExportList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;" onkeydown="if(event.key==='Enter')this.blur();"></div><div id="export-person-list" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+            <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:0 12px;margin-bottom:10px;height:44px;"><i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0;"></i><input type="text" id="export-search" placeholder="ابحث عن اسم..." oninput="filterExportList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;" onkeydown="if(event.key==='Enter')this.blur();"></div><div id="export-person-list" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
             <div class="modal-btns" style="margin-top:14px;">
                 <button class="mbtn mbtn-cancel" onclick="closeExportPersonModal()">إلغاء</button>
             </div>
@@ -958,7 +955,7 @@
             </div>
             <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:0 12px;margin-bottom:10px;height:44px;">
                 <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0;"></i>
-                <input type="text" autocomplete="new-password" id="completed-search" placeholder="ابحث عن اسم..." oninput="filterCompletedList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;" onkeydown="if(event.key==='Enter')this.blur();">
+                <input type="text" id="completed-search" placeholder="ابحث عن اسم..." oninput="filterCompletedList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;" onkeydown="if(event.key==='Enter')this.blur();">
             </div>
             <div id="completed-list" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
             <div class="modal-btns" style="margin-top:14px;">
@@ -979,11 +976,11 @@
             </div>
             <div class="input-wrap">
                 <i class="fa-solid fa-list-ol"></i>
-                <input type="number" autocomplete="new-password" id="schedule-count" inputmode="numeric" placeholder="عدد الدفعات" style="padding-right:34px;">
+                <input type="number" id="schedule-count" inputmode="numeric" placeholder="عدد الدفعات" style="padding-right:34px;">
             </div>
             <div class="input-wrap">
                 <i class="fa-solid fa-calendar-day"></i>
-                <input type="text" autocomplete="new-password" id="schedule-start-date" inputmode="numeric" placeholder="2025-3-5" dir="ltr" style="padding-right:34px;text-align:right;">
+                <input type="text" id="schedule-start-date" inputmode="numeric" placeholder="2025-3-5" dir="ltr" style="padding-right:34px;text-align:right;">
             </div>
             <div class="schedule-type-btns">
                 <button class="stype-btn active" data-type="monthly" onclick="selectType(this)">شهرية</button>
@@ -1027,7 +1024,7 @@
             </div>
             <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:0 12px;margin-bottom:10px;height:44px;">
                 <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0;"></i>
-                <input type="text" autocomplete="new-password" id="edit-debt-search" placeholder="ابحث عن اسم..." oninput="filterEditDebtList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;" onkeydown="if(event.key==='Enter')this.blur();">
+                <input type="text" id="edit-debt-search" placeholder="ابحث عن اسم..." oninput="filterEditDebtList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;" onkeydown="if(event.key==='Enter')this.blur();">
             </div>
             <div id="edit-debt-select-list" style="max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
             <div class="modal-btns" style="margin-top:14px;">
@@ -1037,7 +1034,7 @@
     </div>
 
     <!-- مودال الفرز -->
-    <div class="modal-overlay" id="sort-modal-overlay" onclick="closeModals()" style="align-items:center;">
+    <div class="modal-overlay" id="sort-modal-overlay" onclick="closeModals()" style="align-items:flex-start; padding-top:25%;">
         <div class="modal" onclick="event.stopPropagation()">
             <div class="modal-top">
                 <div class="modal-ico" style="background:#eff6ff;color:var(--primary);"><i class="fa-solid fa-arrow-up-wide-short"></i></div>
@@ -1048,8 +1045,6 @@
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
                 <button class="sort-btn" data-sort="manual" onclick="applySort('manual')"><i class="fa-solid fa-hand-pointer" style="margin-left:8px;"></i>يدوي (الافتراضي)</button>
-                <button class="sort-btn" data-sort="type_li" onclick="applySort('type_li')"><i class="fa-solid fa-arrow-right-to-bracket" style="margin-left:8px;"></i>ديون لي</button>
-                <button class="sort-btn" data-sort="type_alay" onclick="applySort('type_alay')"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-left:8px;"></i>ديون علي</button>
                 <button class="sort-btn" data-sort="newest" onclick="applySort('newest')"><i class="fa-solid fa-clock-rotate-left" style="margin-left:8px;"></i>الأحدث إضافةً</button>
                 <button class="sort-btn" data-sort="oldest" onclick="applySort('oldest')"><i class="fa-solid fa-clock" style="margin-left:8px;"></i>الأقدم إضافةً</button>
                 <button class="sort-btn" data-sort="amount" onclick="applySort('amount')"><i class="fa-solid fa-arrow-down-wide-short" style="margin-left:8px;"></i>الأكبر مبلغاً</button>
@@ -1116,28 +1111,17 @@
         setTimeout(() => document.getElementById('name').focus(), 100);
     }
 
-    let currentDebtType = 'لي';
-
-    function setDebtType(type) {
-        currentDebtType = type;
-        document.getElementById('type-btn-li').style.background   = type === 'لي'   ? 'var(--primary)' : 'transparent';
-        document.getElementById('type-btn-li').style.color        = type === 'لي'   ? 'white' : 'var(--text-muted)';
-        document.getElementById('type-btn-alay').style.background = type === 'علي' ? 'var(--primary)' : 'transparent';
-        document.getElementById('type-btn-alay').style.color      = type === 'علي' ? 'white' : 'var(--text-muted)';
-    }
-
     function addDebt() {
         const name = document.getElementById('name').value.trim();
         const amount = parseFloat(document.getElementById('amount').value);
         const note = document.getElementById('debt-note').value.trim();
         if (!name || isNaN(amount) || amount <= 0) return;
-        debts.unshift({ id: Date.now(), name, original: amount, remaining: amount, note, type: currentDebtType, payments: [] });
+        debts.unshift({ id: Date.now(), name, original: amount, remaining: amount, note, payments: [] });
         save(); closeModals();
         document.getElementById('name').value = '';
         document.getElementById('amount').value = '';
         document.getElementById('amount').classList.remove('has-value');
         document.getElementById('debt-note').value = '';
-        setDebtType('لي');
     }
 
     function openPayModal(id, forcedDueIdx = -1) {
@@ -1440,8 +1424,6 @@
         if (currentSort === 'oldest') return arr.sort((a, b) => a.id - b.id);
         if (currentSort === 'amount') return arr.sort((a, b) => b.remaining - a.remaining);
         if (currentSort === 'amount_asc') return arr.sort((a, b) => a.remaining - b.remaining);
-        if (currentSort === 'type_li')   return arr.filter(d => !d.type || d.type === 'لي');
-        if (currentSort === 'type_alay') return arr.filter(d => d.type === 'علي');
         if (currentSort === 'progress') return arr.sort((a, b) => (a.remaining / a.original) - (b.remaining / b.original)).reverse();
         if (currentSort === 'due') {
             return arr.sort((a, b) => {
