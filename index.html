@@ -1133,7 +1133,6 @@
         document.getElementById('name').placeholder = isTaq ? 'اسم العميل' : 'اسم الشخص';
         document.getElementById('debt-note').placeholder = isTaq ? 'مثلاً: Samsung A07' : 'مثلاً: دين سيارة';
         document.getElementById('cost-wrap').style.display = isTaq ? 'grid' : 'none';
-        document.querySelector('#cost-wrap + .input-wrap input[id="amount"]') && null;
         const amountWrap = document.getElementById('amount').closest('.input-wrap');
         if (amountWrap) amountWrap.style.display = isTaq ? 'none' : '';
         // نافذة التعديل
@@ -1141,6 +1140,31 @@
         document.getElementById('edit-debt-note').placeholder = isTaq ? 'مثلاً: Samsung A07' : 'مثلاً: دين سيارة';
         document.getElementById('edit-amount-wrap').style.display = isTaq ? 'none' : '';
         document.getElementById('edit-cost-wrap').style.display = isTaq ? 'grid' : 'none';
+        const editModalTitle = document.querySelector('#edit-modal-overlay .modal-title');
+        const editModalSub = document.querySelector('#edit-modal-overlay .modal-subtitle');
+        if (editModalTitle) editModalTitle.textContent = isTaq ? 'تعديل معلومات القسط' : 'تعديل معلومات الدين';
+        if (editModalSub) editModalSub.textContent = isTaq ? 'عدّل الاسم أو المبالغ' : 'عدّل الاسم أو المبلغ الكلي';
+        // نافذة اختيار للتعديل
+        const editSelTitle = document.querySelector('#edit-debt-select-overlay .modal-title');
+        const editSelSub = document.querySelector('#edit-debt-select-overlay .modal-subtitle');
+        if (editSelTitle) editSelTitle.textContent = isTaq ? 'تعديل تقسيط' : 'تعديل دين';
+        if (editSelSub) editSelSub.textContent = isTaq ? 'اختر القسط الذي تريد تعديله' : 'اختر الدين الذي تريد تعديله';
+        // نافذة المكتملة
+        const compTitle = document.querySelector('#completed-modal-overlay .modal-title');
+        const compSub = document.querySelector('#completed-modal-overlay .modal-subtitle');
+        if (compTitle) compTitle.textContent = isTaq ? 'الأقساط المكتملة' : 'الديون المكتملة';
+        if (compSub) compSub.textContent = isTaq ? 'اضغط على اسم للانتقال إلى بطاقته' : 'اضغط على اسم للانتقال إلى بطاقته';
+        // نافذة التصدير
+        const expTitle = document.querySelector('#export-person-overlay .modal-title');
+        const expSub = document.querySelector('#export-person-overlay .modal-subtitle');
+        if (expTitle) expTitle.textContent = isTaq ? 'تصدير قسط معين' : 'تصدير دين معين';
+        if (expSub) expSub.textContent = isTaq ? 'اختر العميل لتصدير بطاقته كصورة' : 'اختر الشخص لتصدير بطاقته كصورة';
+        // نافذة الفرز
+        const sortSub = document.querySelector('#sort-modal-overlay .modal-subtitle');
+        if (sortSub) sortSub.textContent = isTaq ? 'اختر طريقة عرض الأقساط' : 'اختر طريقة العرض';
+        // الإحصائيات
+        const statsSub = document.querySelector('#stats-modal-overlay .modal-subtitle');
+        if (statsSub) statsSub.textContent = isTaq ? 'ملخص أقساطك الحالية' : 'ملخص ديونك الحالية';
         // البانر
         document.getElementById('banner-remaining-label').textContent = isTaq ? 'المتبقي' : 'الديون المتبقية';
         document.getElementById('banner-original-label').textContent = isTaq ? 'إجمالي التقسيط' : 'إجمالي الديون';
@@ -1442,13 +1466,24 @@
     }
 
     function exportData() {
-        const archived = JSON.parse(localStorage.getItem(getArchivedKey()) || '[]');
-        const activeIds = new Set(debts.map(d => d.id));
-        const archivedOnly = archived.filter(d => !activeIds.has(d.id));
-        const all = [...debts, ...archivedOnly];
+        // ديون
+        const debtsData = JSON.parse(localStorage.getItem('my_debts_final_v3') || '[]');
+        const debtsArchived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        const debtsActiveIds = new Set(debtsData.map(d => d.id));
+        const debtsArchivedOnly = debtsArchived.filter(d => !debtsActiveIds.has(d.id));
+        // أقساط
+        const taqData = JSON.parse(localStorage.getItem('my_taqseet_v1') || '[]');
+        const taqArchived = JSON.parse(localStorage.getItem('my_taqseet_archived') || '[]');
+        const taqActiveIds = new Set(taqData.map(d => d.id));
+        const taqArchivedOnly = taqArchived.filter(d => !taqActiveIds.has(d.id));
+
+        const backup = {
+            debts: [...debtsData, ...debtsArchivedOnly],
+            taqseet: [...taqData, ...taqArchivedOnly]
+        };
         const now = new Date();
         const dateStr = `${now.getDate()}-${now.getMonth()+1}-${now.getFullYear()}`;
-        const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = `Deyon ${dateStr}.json`;
@@ -1965,7 +2000,19 @@
     function importData(e) {
         const reader = new FileReader();
         reader.onload = ev => {
-            try { debts = JSON.parse(ev.target.result); save(); }
+            try {
+                const parsed = JSON.parse(ev.target.result);
+                // الشكل الجديد: { debts: [...], taqseet: [...] }
+                if (parsed && parsed.debts && parsed.taqseet) {
+                    localStorage.setItem('my_debts_final_v3', JSON.stringify(parsed.debts));
+                    localStorage.setItem('my_taqseet_v1', JSON.stringify(parsed.taqseet));
+                    debts = JSON.parse(localStorage.getItem(getStorageKey()) || '[]');
+                } else {
+                    // الشكل القديم: مصفوفة مباشرة
+                    debts = parsed;
+                }
+                save();
+            }
             catch { alert('خطأ في استيراد الملف!'); }
         };
         if (e.target.files[0]) reader.readAsText(e.target.files[0]);
