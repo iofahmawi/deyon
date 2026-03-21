@@ -824,10 +824,6 @@
                     <p class="modal-subtitle">أضف اسم الشخص والمبلغ</p>
                 </div>
             </div>
-            <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:10px;">
-                <button id="type-btn-li" onclick="setDebtType('لي')" style="flex:1;border:none;padding:8px;border-radius:8px;font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;background:var(--primary);color:white;transition:all 0.2s;">دين لي</button>
-                <button id="type-btn-alay" onclick="setDebtType('علي')" style="flex:1;border:none;padding:8px;border-radius:8px;font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">دين علي</button>
-            </div>
             <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" autocomplete="new-password" id="name" placeholder="اسم الشخص"></div>
             <div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" autocomplete="new-password" id="amount" placeholder="المبلغ" inputmode="decimal"></div>
             <div class="input-wrap"><i class="fa-solid fa-tag"></i><input type="text" autocomplete="new-password" id="debt-note" placeholder="مثلاً: دين سيارة" style="text-align:right;padding-right:34px !important;"></div>
@@ -893,10 +889,6 @@
                     <p class="modal-subtitle">عدّل الاسم أو المبلغ الكلي</p>
                 </div>
             </div>
-            <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:10px;">
-                <button id="edit-type-btn-li" onclick="setEditDebtType('لي')" style="flex:1;border:none;padding:8px;border-radius:8px;font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.2s;">دين لي</button>
-                <button id="edit-type-btn-alay" onclick="setEditDebtType('علي')" style="flex:1;border:none;padding:8px;border-radius:8px;font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.2s;">دين علي</button>
-            </div>
             <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" autocomplete="new-password" id="edit-name" placeholder="اسم الشخص"></div>
             <div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" autocomplete="new-password" id="edit-amount" placeholder="المبلغ الكلي" inputmode="decimal"></div>
             <div class="input-wrap"><i class="fa-solid fa-tag"></i><input type="text" autocomplete="new-password" id="edit-debt-note" placeholder="مثلاً: دين سيارة" style="text-align:right;padding-right:34px !important;"></div>
@@ -944,10 +936,6 @@
                 </div>
                 <button onclick="closeExportPersonModal()" style="background:none;border:none;font-size:1.1rem;color:var(--text-muted);cursor:pointer;padding:4px;line-height:1;align-self:flex-start;margin-top:2px;"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:10px;">
-                <button id="export-tab-li" onclick="switchExportTab('لي')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:var(--primary);color:white;transition:all 0.2s;">ديون لي</button>
-                <button id="export-tab-alay" onclick="switchExportTab('علي')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">ديون علي</button>
-            </div>
             <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:0 12px;margin-bottom:10px;height:44px;"><i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0;"></i><input type="text" autocomplete="new-password" id="export-search" placeholder="ابحث عن اسم..." oninput="filterExportList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;" onkeydown="if(event.key==='Enter')this.blur();"></div><div id="export-person-list" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
         </div>
     </div>
@@ -962,10 +950,6 @@
                     <p class="modal-subtitle">اضغط على اسم للانتقال إلى بطاقته</p>
                 </div>
                 <button onclick="closeCompletedModal()" style="background:none;border:none;font-size:1.1rem;color:var(--text-muted);cursor:pointer;padding:4px;line-height:1;align-self:flex-start;margin-top:2px;"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:10px;">
-                <button id="completed-tab-li" onclick="switchCompletedTab('لي')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:var(--success);color:white;transition:all 0.2s;">ديون لي</button>
-                <button id="completed-tab-alay" onclick="switchCompletedTab('علي')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">ديون علي</button>
             </div>
             <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:0 12px;margin-bottom:10px;height:44px;">
                 <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0;"></i>
@@ -1034,10 +1018,6 @@
                 </div>
                 <button onclick="closeModals()" style="background:none;border:none;font-size:1.1rem;color:var(--text-muted);cursor:pointer;padding:4px;line-height:1;align-self:flex-start;margin-top:2px;"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:10px;">
-                <button id="edit-debt-tab-li" onclick="switchEditDebtTab('لي')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:var(--primary);color:white;transition:all 0.2s;">ديون لي</button>
-                <button id="edit-debt-tab-alay" onclick="switchEditDebtTab('علي')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">ديون علي</button>
-            </div>
             <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:0 12px;margin-bottom:10px;height:44px;">
                 <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0;"></i>
                 <input type="text" autocomplete="new-password" id="edit-debt-search" placeholder="ابحث عن اسم..." oninput="filterEditDebtList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;" onkeydown="if(event.key==='Enter')this.blur();">
@@ -1059,8 +1039,6 @@
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
                 <button class="sort-btn" data-sort="manual" onclick="applySort('manual')"><i class="fa-solid fa-hand-pointer" style="margin-left:8px;"></i>يدوي (الافتراضي)</button>
-                <button class="sort-btn" data-sort="type_li" onclick="applySort('type_li')"><i class="fa-solid fa-arrow-right-to-bracket" style="margin-left:8px;"></i>ديون لي</button>
-                <button class="sort-btn" data-sort="type_alay" onclick="applySort('type_alay')"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-left:8px;"></i>ديون علي</button>
                 <button class="sort-btn" data-sort="newest" onclick="applySort('newest')"><i class="fa-solid fa-clock-rotate-left" style="margin-left:8px;"></i>الأحدث إضافةً</button>
                 <button class="sort-btn" data-sort="oldest" onclick="applySort('oldest')"><i class="fa-solid fa-clock" style="margin-left:8px;"></i>الأقدم إضافةً</button>
                 <button class="sort-btn" data-sort="amount" onclick="applySort('amount')"><i class="fa-solid fa-arrow-down-wide-short" style="margin-left:8px;"></i>الأكبر مبلغاً</button>
@@ -1081,10 +1059,6 @@
                     <p class="modal-subtitle">ملخص ديونك الحالية</p>
                 </div>
                 <button onclick="closeStatsModal()" style="background:none;border:none;font-size:1.1rem;color:var(--text-muted);cursor:pointer;padding:4px;line-height:1;align-self:flex-start;margin-top:2px;"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:12px;">
-                <button id="stats-tab-finance" onclick="switchStatsTab('finance')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:var(--primary);color:white;transition:all 0.2s;">ديون لي</button>
-                <button id="stats-tab-debts" onclick="switchStatsTab('debts')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">ديون علي</button>
             </div>
             <div id="stats-content" style="display:flex;flex-direction:column;gap:8px;"></div>
         </div>
@@ -1126,28 +1100,17 @@
         setTimeout(() => document.getElementById('name').focus(), 100);
     }
 
-    let currentDebtType = 'لي';
-
-    function setDebtType(type) {
-        currentDebtType = type;
-        document.getElementById('type-btn-li').style.background   = type === 'لي'   ? 'var(--primary)' : 'transparent';
-        document.getElementById('type-btn-li').style.color        = type === 'لي'   ? 'white' : 'var(--text-muted)';
-        document.getElementById('type-btn-alay').style.background = type === 'علي' ? 'var(--primary)' : 'transparent';
-        document.getElementById('type-btn-alay').style.color      = type === 'علي' ? 'white' : 'var(--text-muted)';
-    }
-
     function addDebt() {
         const name = document.getElementById('name').value.trim();
         const amount = parseFloat(document.getElementById('amount').value);
         const note = document.getElementById('debt-note').value.trim();
         if (!name || isNaN(amount) || amount <= 0) return;
-        debts.unshift({ id: Date.now(), name, original: amount, remaining: amount, note, type: currentDebtType, payments: [] });
+        debts.unshift({ id: Date.now(), name, original: amount, remaining: amount, note, payments: [] });
         save(); closeModals();
         document.getElementById('name').value = '';
         document.getElementById('amount').value = '';
         document.getElementById('amount').classList.remove('has-value');
         document.getElementById('debt-note').value = '';
-        setDebtType('لي');
     }
 
     function openPayModal(id, forcedDueIdx = -1) {
@@ -1209,23 +1172,12 @@
         document.getElementById('pay-confirm-btn').onclick = () => confirmPayment(id, dueIdx);
     }
 
-    let currentEditDebtType = 'لي';
-
-    function setEditDebtType(type) {
-        currentEditDebtType = type;
-        document.getElementById('edit-type-btn-li').style.background   = type === 'لي'  ? 'var(--primary)' : 'transparent';
-        document.getElementById('edit-type-btn-li').style.color        = type === 'لي'  ? 'white' : 'var(--text-muted)';
-        document.getElementById('edit-type-btn-alay').style.background = type === 'علي' ? 'var(--primary)' : 'transparent';
-        document.getElementById('edit-type-btn-alay').style.color      = type === 'علي' ? 'white' : 'var(--text-muted)';
-    }
-
     function openEditModal(id) {
         const debt = debts.find(d => d.id === id);
         document.getElementById('edit-name').value = debt.name;
         document.getElementById('edit-amount').value = debt.original;
         document.getElementById('edit-amount').classList.add('has-value');
         document.getElementById('edit-debt-note').value = debt.note || '';
-        setEditDebtType(debt.type || 'لي');
         document.getElementById('edit-modal-overlay').classList.add('active');
         setTimeout(() => document.getElementById('edit-name').focus(), 100);
         document.getElementById('edit-confirm-btn').onclick = () => confirmEdit(id);
@@ -1236,14 +1188,12 @@
         const name = document.getElementById('edit-name').value.trim();
         const newOriginal = parseFloat(document.getElementById('edit-amount').value);
         const note = document.getElementById('edit-debt-note').value.trim();
-        const type = currentEditDebtType;
         if (!name || isNaN(newOriginal) || newOriginal <= 0) return;
         const paid = debt.original - debt.remaining;
         debt.name = name;
         debt.original = newOriginal;
         debt.remaining = Math.max(0, newOriginal - paid);
         debt.note = note;
-        debt.type = type;
         save(); closeModals();
     }
 
@@ -1412,26 +1362,9 @@
     }
 
     // ─── تعديل دين من القائمة ───
-    let currentEditDebtTab = 'لي';
-
-    function switchEditDebtTab(type) {
-        currentEditDebtTab = type;
-        document.getElementById('edit-debt-tab-li').style.background   = type === 'لي'  ? 'var(--primary)' : 'transparent';
-        document.getElementById('edit-debt-tab-li').style.color        = type === 'لي'  ? 'white' : 'var(--text-muted)';
-        document.getElementById('edit-debt-tab-alay').style.background = type === 'علي' ? 'var(--primary)' : 'transparent';
-        document.getElementById('edit-debt-tab-alay').style.color      = type === 'علي' ? 'white' : 'var(--text-muted)';
-        document.getElementById('edit-debt-search').value = '';
-        renderEditDebtList(debts.filter(d => type === 'لي' ? (!d.type || d.type === 'لي') : d.type === 'علي'));
-    }
-
     function openEditDebtModal() {
-        currentEditDebtTab = 'لي';
-        document.getElementById('edit-debt-tab-li').style.background   = 'var(--primary)';
-        document.getElementById('edit-debt-tab-li').style.color        = 'white';
-        document.getElementById('edit-debt-tab-alay').style.background = 'transparent';
-        document.getElementById('edit-debt-tab-alay').style.color      = 'var(--text-muted)';
         document.getElementById('edit-debt-search').value = '';
-        renderEditDebtList(debts.filter(d => !d.type || d.type === 'لي'));
+        renderEditDebtList(debts);
         document.getElementById('edit-debt-select-overlay').classList.add('active');
         setTimeout(() => document.getElementById('edit-debt-search').blur(), 50);
     }
@@ -1453,8 +1386,7 @@
     }
 
     function filterEditDebtList(q) {
-        const byType = debts.filter(d => currentEditDebtTab === 'لي' ? (!d.type || d.type === 'لي') : d.type === 'علي');
-        const filtered = q.trim() ? byType.filter(d => d.name.includes(q.trim())) : byType;
+        const filtered = q.trim() ? debts.filter(d => d.name.includes(q.trim())) : debts;
         renderEditDebtList(filtered);
     }
 
@@ -1481,8 +1413,6 @@
         if (currentSort === 'oldest') return arr.sort((a, b) => a.id - b.id);
         if (currentSort === 'amount') return arr.sort((a, b) => b.remaining - a.remaining);
         if (currentSort === 'amount_asc') return arr.sort((a, b) => a.remaining - b.remaining);
-        if (currentSort === 'type_li')   return arr.filter(d => !d.type || d.type === 'لي');
-        if (currentSort === 'type_alay') return arr.filter(d => d.type === 'علي');
         if (currentSort === 'progress') return arr.sort((a, b) => (a.remaining / a.original) - (b.remaining / b.original)).reverse();
         if (currentSort === 'due') {
             return arr.sort((a, b) => {
@@ -1534,29 +1464,9 @@
         return [...active, ...archivedOnly];
     }
 
-    let currentCompletedTab = 'لي';
-
-    function switchCompletedTab(type) {
-        currentCompletedTab = type;
-        document.getElementById('completed-tab-li').style.background   = type === 'لي'  ? 'var(--success)' : 'transparent';
-        document.getElementById('completed-tab-li').style.color        = type === 'لي'  ? 'white' : 'var(--text-muted)';
-        document.getElementById('completed-tab-alay').style.background = type === 'علي' ? 'var(--success)' : 'transparent';
-        document.getElementById('completed-tab-alay').style.color      = type === 'علي' ? 'white' : 'var(--text-muted)';
-        document.getElementById('completed-search').value = '';
-        const all = getCompletedList();
-        const filtered = all.filter(d => type === 'لي' ? (!d.type || d.type === 'لي') : d.type === 'علي');
-        renderCompletedList(filtered);
-    }
-
     function openCompletedModal() {
-        currentCompletedTab = 'لي';
-        document.getElementById('completed-tab-li').style.background   = 'var(--success)';
-        document.getElementById('completed-tab-li').style.color        = 'white';
-        document.getElementById('completed-tab-alay').style.background = 'transparent';
-        document.getElementById('completed-tab-alay').style.color      = 'var(--text-muted)';
         document.getElementById('completed-search').value = '';
-        const all = getCompletedList();
-        renderCompletedList(all.filter(d => !d.type || d.type === 'لي'));
+        renderCompletedList(getCompletedList());
         document.getElementById('completed-modal-overlay').classList.add('active');
         setTimeout(() => document.getElementById('completed-search').blur(), 50);
     }
@@ -1591,11 +1501,10 @@
     }
 
     function filterCompletedList(q) {
-        const all = getCompletedList();
-        const byType = all.filter(d => currentCompletedTab === 'لي' ? (!d.type || d.type === 'لي') : d.type === 'علي');
+        const completed = getCompletedList();
         const filtered = q.trim()
-            ? byType.filter(d => d.name.toLowerCase().includes(q.trim().toLowerCase()))
-            : byType;
+            ? completed.filter(d => d.name.toLowerCase().includes(q.trim().toLowerCase()))
+            : completed;
         renderCompletedList(filtered);
     }
 
@@ -1797,8 +1706,6 @@
     }
 
     // ─── الإحصائيات ───
-    let statsData = {};
-
     const statsRow = (icon, color, bg, label, value) =>
         `<div style="display:flex;align-items:center;gap:10px;padding:8px 4px;">
             <div style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:${color};font-size:0.8rem;flex-shrink:0;">
@@ -1810,15 +1717,19 @@
             </div>
         </div>`;
 
-    function calcStats(list, archivedOnly) {
-        const totalOriginal  = list.reduce((s, d) => s + d.original, 0);
-        const totalRemaining = list.reduce((s, d) => s + d.remaining, 0);
+    function openStatsModal() {
+        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        const activeIds = new Set(debts.map(d => d.id));
+        const archivedOnly = archived.filter(d => !activeIds.has(d.id));
+
+        const totalOriginal  = debts.reduce((s, d) => s + d.original, 0);
+        const totalRemaining = debts.reduce((s, d) => s + d.remaining, 0);
         const totalCollected = totalOriginal - totalRemaining;
         const collectPct     = totalOriginal ? Math.round((totalCollected / totalOriginal) * 100) : 0;
-        const activeCount    = list.filter(d => d.remaining > 0).length;
-        const doneCount      = list.filter(d => d.remaining <= 0).length + (archivedOnly || 0);
-        const biggestDebt    = list.filter(d => d.remaining > 0).sort((a,b) => b.remaining - a.remaining)[0];
-        const nextDue        = list.flatMap(d =>
+        const activeCount    = debts.filter(d => d.remaining > 0).length;
+        const doneCount      = debts.filter(d => d.remaining <= 0).length + archivedOnly.length;
+        const biggestDebt    = debts.filter(d => d.remaining > 0).sort((a,b) => b.remaining - a.remaining)[0];
+        const nextDue        = debts.flatMap(d =>
             (d.scheduled || []).map(s => ({ name: d.name, amount: s.amount, date: s.date }))
         ).filter(s => {
             const parts = s.date.split('/').map(Number);
@@ -1827,46 +1738,21 @@
             const toMs = d => { const p = d.split('/').map(Number); return new Date(p[0],p[1]-1,p[2]).getTime(); };
             return toMs(a.date) - toMs(b.date);
         })[0];
-        return { totalOriginal, totalRemaining, totalCollected, collectPct, activeCount, doneCount, biggestDebt, nextDue };
-    }
 
-    function renderStatsContent(s) {
         const rows = [
-            statsRow('fa-money-bills',       '#4361ee', '', 'إجمالي الديون الكلية', s.totalOriginal.toLocaleString()),
-            statsRow('fa-circle-check',      '#10b981', '', 'إجمالي المحصّل',        s.totalCollected.toLocaleString()),
-            statsRow('fa-hourglass-half',    '#ef4444', '', 'إجمالي المتبقي',        s.totalRemaining.toLocaleString()),
-            statsRow('fa-percent',           '#f97316', '', 'نسبة التحصيل',          s.collectPct + '%'),
-            statsRow('fa-user-clock',        '#4361ee', '', 'نشطة / مكتملة',         s.activeCount + ' / ' + s.doneCount),
-            s.biggestDebt ? statsRow('fa-arrow-up-wide-short','#ef4444','','أكبر دين متبقي', s.biggestDebt.name + ' - ' + s.biggestDebt.remaining.toLocaleString()) : '',
-            s.nextDue     ? statsRow('fa-calendar-day',       '#f97316','','أقرب دفعة مستحقة', s.nextDue.name + ' - ' + s.nextDue.amount.toLocaleString()) : ''
+            statsRow('fa-money-bills',       '#4361ee','', 'إجمالي الديون الكلية', totalOriginal.toLocaleString()),
+            statsRow('fa-circle-check',      '#10b981','', 'إجمالي المحصّل',        totalCollected.toLocaleString()),
+            statsRow('fa-hourglass-half',    '#ef4444','', 'إجمالي المتبقي',        totalRemaining.toLocaleString()),
+            statsRow('fa-percent',           '#f97316','', 'نسبة التحصيل',          collectPct + '%'),
+            statsRow('fa-user-clock',        '#4361ee','', 'نشطة / مكتملة',         activeCount + ' / ' + doneCount),
+            biggestDebt ? statsRow('fa-arrow-up-wide-short','#ef4444','','أكبر دين متبقي', biggestDebt.name + ' - ' + biggestDebt.remaining.toLocaleString()) : '',
+            nextDue     ? statsRow('fa-calendar-day',       '#f97316','','أقرب دفعة مستحقة', nextDue.name + ' - ' + nextDue.amount.toLocaleString()) : ''
         ].filter(Boolean);
+
         document.getElementById('stats-content').innerHTML = rows.map((r, i) =>
-            i < rows.length - 1 ? r.replace('<div style="display:flex', `<div style="border-bottom:1px solid var(--border);display:flex`) : r
+            i < rows.length - 1 ? r.replace('<div style="display:flex', '<div style="border-bottom:1px solid var(--border);display:flex') : r
         ).join('');
-    }
 
-    function switchStatsTab(tab) {
-        document.getElementById('stats-tab-finance').style.background = tab === 'finance' ? 'var(--primary)' : 'transparent';
-        document.getElementById('stats-tab-finance').style.color      = tab === 'finance' ? 'white' : 'var(--text-muted)';
-        document.getElementById('stats-tab-debts').style.background   = tab === 'debts'   ? 'var(--primary)' : 'transparent';
-        document.getElementById('stats-tab-debts').style.color        = tab === 'debts'   ? 'white' : 'var(--text-muted)';
-        renderStatsContent(tab === 'finance' ? statsData.li : statsData.alay);
-    }
-
-    function openStatsModal() {
-        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
-        const activeIds = new Set(debts.map(d => d.id));
-        const archivedOnly = archived.filter(d => !activeIds.has(d.id));
-
-        const liDebts   = debts.filter(d => !d.type || d.type === 'لي');
-        const alayDebts = debts.filter(d => d.type === 'علي');
-        const liArchived   = archivedOnly.filter(d => !d.type || d.type === 'لي').length;
-        const alayArchived = archivedOnly.filter(d => d.type === 'علي').length;
-
-        statsData.li   = calcStats(liDebts,   liArchived);
-        statsData.alay = calcStats(alayDebts, alayArchived);
-
-        switchStatsTab('finance');
         document.getElementById('stats-modal-overlay').classList.add('active');
     }
 
@@ -1882,28 +1768,9 @@
         return [...debts, ...archivedOnly];
     }
 
-    let currentExportTab = 'لي';
-
-    function switchExportTab(type) {
-        currentExportTab = type;
-        document.getElementById('export-tab-li').style.background   = type === 'لي'  ? 'var(--primary)' : 'transparent';
-        document.getElementById('export-tab-li').style.color        = type === 'لي'  ? 'white' : 'var(--text-muted)';
-        document.getElementById('export-tab-alay').style.background = type === 'علي' ? 'var(--primary)' : 'transparent';
-        document.getElementById('export-tab-alay').style.color      = type === 'علي' ? 'white' : 'var(--text-muted)';
-        document.getElementById('export-search').value = '';
-        const all = getAllExportList();
-        renderExportList(all.filter(d => type === 'لي' ? (!d.type || d.type === 'لي') : d.type === 'علي'));
-    }
-
     function openExportPersonModal() {
-        currentExportTab = 'لي';
-        document.getElementById('export-tab-li').style.background   = 'var(--primary)';
-        document.getElementById('export-tab-li').style.color        = 'white';
-        document.getElementById('export-tab-alay').style.background = 'transparent';
-        document.getElementById('export-tab-alay').style.color      = 'var(--text-muted)';
         document.getElementById('export-search').value = '';
-        const all = getAllExportList();
-        renderExportList(all.filter(d => !d.type || d.type === 'لي'));
+        renderExportList(getAllExportList());
         document.getElementById('export-person-overlay').classList.add('active');
         setTimeout(() => document.getElementById('export-search').blur(), 50);
     }
@@ -1927,8 +1794,7 @@
 
     function filterExportList(q) {
         const all = getAllExportList();
-        const byType = all.filter(d => currentExportTab === 'لي' ? (!d.type || d.type === 'لي') : d.type === 'علي');
-        const filtered = q.trim() ? byType.filter(d => d.name.toLowerCase().includes(q.trim().toLowerCase())) : byType;
+        const filtered = q.trim() ? all.filter(d => d.name.toLowerCase().includes(q.trim().toLowerCase())) : all;
         renderExportList(filtered);
     }
 
