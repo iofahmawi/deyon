@@ -830,6 +830,7 @@
                 </div>
             </div>
             <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" autocomplete="new-password" id="name" placeholder="اسم الشخص"></div>
+            <div class="input-wrap" id="phone-wrap" style="display:none;"><i class="fa-solid fa-phone"></i><input type="tel" autocomplete="new-password" id="phone-number" placeholder="رقم الهاتف" inputmode="tel" style="text-align:right;padding-right:34px !important;"></div>
             <div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" autocomplete="new-password" id="amount" placeholder="المبلغ" inputmode="decimal"></div>
             <div id="cost-wrap" style="display:none;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:7px;">
                 <input type="number" autocomplete="new-password" id="cost-amount" placeholder="سعر الكلفة" inputmode="decimal" style="height:44px;padding:0 12px;background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.88rem;text-align:center;outline:none;box-sizing:border-box;">
@@ -899,6 +900,7 @@
                 </div>
             </div>
             <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" autocomplete="new-password" id="edit-name" placeholder="اسم الشخص"></div>
+            <div class="input-wrap" id="edit-phone-wrap" style="display:none;"><i class="fa-solid fa-phone"></i><input type="tel" autocomplete="new-password" id="edit-phone-number" placeholder="رقم الهاتف" inputmode="tel" style="text-align:right;padding-right:34px !important;"></div>
             <div class="input-wrap" id="edit-amount-wrap"><i class="fa-solid fa-coins"></i><input type="number" autocomplete="new-password" id="edit-amount" placeholder="المبلغ الكلي" inputmode="decimal"></div>
             <div id="edit-cost-wrap" style="display:none;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:7px;">
                 <input type="number" autocomplete="new-password" id="edit-cost-amount" placeholder="سعر الكلفة" inputmode="decimal" style="height:44px;padding:0 12px;background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.88rem;text-align:center;outline:none;box-sizing:border-box;">
@@ -1136,6 +1138,8 @@
         document.getElementById('cost-wrap').style.display = isTaq ? 'grid' : 'none';
         const amountWrap = document.getElementById('amount').closest('.input-wrap');
         if (amountWrap) amountWrap.style.display = isTaq ? 'none' : '';
+        document.getElementById('phone-wrap').style.display = isTaq ? '' : 'none';
+        document.getElementById('edit-phone-wrap').style.display = isTaq ? '' : 'none';
         // نافذة التعديل
         document.getElementById('edit-name').placeholder = isTaq ? 'اسم العميل' : 'اسم الشخص';
         document.getElementById('edit-debt-note').placeholder = isTaq ? 'مثلاً: Samsung A07' : 'مثلاً: دين سيارة';
@@ -1203,8 +1207,9 @@
         } else {
             amount = parseFloat(document.getElementById('amount').value);
         }
+        const phone = appMode === 'taqseet' ? (document.getElementById('phone-number').value.trim() || '') : '';
         if (!name || isNaN(amount) || amount <= 0) return;
-        debts.unshift({ id: Date.now(), name, original: amount, remaining: amount, cost, note, payments: [] });
+        debts.unshift({ id: Date.now(), name, original: amount, remaining: amount, cost, phone, note, payments: [] });
         save(); closeModals();
         document.getElementById('name').value = '';
         document.getElementById('amount').value = '';
@@ -1212,6 +1217,7 @@
         document.getElementById('amount-taq').value = '';
         document.getElementById('cost-amount').value = '';
         document.getElementById('debt-note').value = '';
+        document.getElementById('phone-number').value = '';
     }
 
     function openPayModal(id, forcedDueIdx = -1) {
@@ -1277,6 +1283,7 @@
         const debt = debts.find(d => d.id === id);
         document.getElementById('edit-name').value = debt.name;
         document.getElementById('edit-debt-note').value = debt.note || '';
+        if (appMode === 'taqseet') document.getElementById('edit-phone-number').value = debt.phone || '';
         if (appMode === 'taqseet') {
             document.getElementById('edit-amount-taq').value = debt.original;
             document.getElementById('edit-cost-amount').value = debt.cost || '';
@@ -1307,6 +1314,7 @@
         debt.remaining = Math.max(0, newOriginal - paid);
         debt.note = note;
         debt.cost = cost;
+        if (appMode === 'taqseet') debt.phone = document.getElementById('edit-phone-number').value.trim();
         save(); closeModals();
     }
 
