@@ -130,6 +130,7 @@
             cursor: pointer;
             transition: background 0.15s;
             text-align: right;
+            white-space: nowrap;
         }
 
         .export-dropdown button:hover { background: #f8fafc; }
@@ -1044,7 +1045,7 @@
             <div class="modal-top">
                 <div class="modal-ico" style="background:#eff6ff;color:var(--primary);"><i class="fa-solid fa-arrow-up-wide-short"></i></div>
                 <div style="flex:1;">
-                    <p class="modal-title">فرز الديون</p>
+                    <p class="modal-title" id="sort-modal-title">فرز الديون</p>
                     <p class="modal-subtitle">اختر طريقة العرض</p>
                 </div>
                 <button onclick="closeModals()" style="background:none;border:none;font-size:1.1rem;color:var(--text-muted);cursor:pointer;padding:4px;line-height:1;align-self:flex-start;margin-top:2px;"><i class="fa-solid fa-xmark"></i></button>
@@ -1160,6 +1161,8 @@
         if (expTitle) expTitle.textContent = isTaq ? 'تصدير قسط معين' : 'تصدير دين معين';
         if (expSub) expSub.textContent = isTaq ? 'اختر العميل لتصدير بطاقته كصورة' : 'اختر الشخص لتصدير بطاقته كصورة';
         // نافذة الفرز
+        const sortTitle = document.getElementById('sort-modal-title');
+        if (sortTitle) sortTitle.textContent = isTaq ? 'فرز الأقساط' : 'فرز الديون';
         const sortSub = document.querySelector('#sort-modal-overlay .modal-subtitle');
         if (sortSub) sortSub.textContent = isTaq ? 'اختر طريقة عرض الأقساط' : 'اختر طريقة العرض';
         // الإحصائيات
