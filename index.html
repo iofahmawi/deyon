@@ -778,13 +778,14 @@
             <div class="export-wrap" id="menu-wrap">
                 <button class="btn-icon" onclick="toggleMainMenu(event)"><i class="fa-solid fa-bars"></i></button>
                 <div class="export-dropdown" id="main-menu-dropdown">
-                    <button onclick="closeMainMenu(); openCompletedModal()"><i class="fa-solid fa-circle-check"></i> ديون مكتملة</button>
-                    <button onclick="closeMainMenu(); openEditDebtModal()"><i class="fa-solid fa-pen-to-square"></i> تعديل دين</button>
-                    <button onclick="closeMainMenu(); openSortModal()"><i class="fa-solid fa-arrow-up-wide-short"></i> فرز الديون</button>
+                    <button onclick="closeMainMenu(); openCompletedModal()"><i class="fa-solid fa-circle-check"></i> <span class="lbl-completed">ديون مكتملة</span></button>
+                    <button onclick="closeMainMenu(); openEditDebtModal()"><i class="fa-solid fa-pen-to-square"></i> <span class="lbl-edit">تعديل دين</span></button>
+                    <button onclick="closeMainMenu(); openSortModal()"><i class="fa-solid fa-arrow-up-wide-short"></i> <span class="lbl-sort">فرز الديون</span></button>
                     <button onclick="closeMainMenu(); openStatsModal()"><i class="fa-solid fa-chart-pie"></i> إحصائيات</button>
                     <button onclick="closeMainMenu(); document.getElementById('file-input').click()"><i class="fa-solid fa-file-arrow-up"></i> استيراد من ملف</button>
-                    <button onclick="closeMainMenu(); openExportPersonModal()"><i class="fa-solid fa-user"></i> تصدير دين كصورة</button>
+                    <button onclick="closeMainMenu(); openExportPersonModal()"><i class="fa-solid fa-user"></i> <span class="lbl-export">تصدير دين كصورة</span></button>
                     <button onclick="closeMainMenu(); exportData()"><i class="fa-solid fa-database"></i> تصدير الكل</button>
+                    <button onclick="closeMainMenu(); switchAppMode()"><i class="fa-solid fa-repeat"></i> <span id="mode-switch-label">وضع التقسيط</span></button>
                 </div>
             </div>
             <input type="file" id="file-input" onchange="importData(event)" accept=".json">
@@ -798,12 +799,16 @@
 
     <div class="total-banner">
         <div class="banner-section" id="banner-remaining" onclick="toggleBannerOriginal()" style="cursor:pointer;">
-            <small>الديون المتبقية</small>
+            <small id="banner-remaining-label">الديون المتبقية</small>
             <div class="amount" id="grand-total">0</div>
         </div>
         <div class="banner-section" id="banner-original" style="transition: all 0.3s;">
-            <small>إجمالي الديون</small>
+            <small id="banner-original-label">إجمالي الديون</small>
             <div class="amount" id="grand-original">0</div>
+        </div>
+        <div class="banner-section hidden" id="banner-profit" style="transition: all 0.3s;">
+            <small>إجمالي الأرباح</small>
+            <div class="amount" id="grand-profit">0</div>
         </div>
     </div>
 
@@ -819,12 +824,16 @@
             <div class="modal-top">
                 <div class="modal-ico add"><i class="fa-solid fa-user-plus"></i></div>
                 <div>
-                    <p class="modal-title">دين جديد</p>
-                    <p class="modal-subtitle">أضف اسم الشخص والمبلغ</p>
+                    <p class="modal-title" id="add-modal-title">دين جديد</p>
+                    <p class="modal-subtitle" id="add-modal-subtitle">أضف اسم الشخص والمبلغ</p>
                 </div>
             </div>
             <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" autocomplete="new-password" id="name" placeholder="اسم الشخص"></div>
             <div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" autocomplete="new-password" id="amount" placeholder="المبلغ" inputmode="decimal"></div>
+            <div id="cost-wrap" style="display:none;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:7px;">
+                <input type="number" autocomplete="new-password" id="cost-amount" placeholder="سعر الكلفة" inputmode="decimal" style="height:44px;padding:0 12px;background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.88rem;text-align:center;outline:none;box-sizing:border-box;">
+                <input type="number" autocomplete="new-password" id="amount-taq" placeholder="سعر التقسيط" inputmode="decimal" style="height:44px;padding:0 12px;background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.88rem;text-align:center;outline:none;box-sizing:border-box;">
+            </div>
             <div class="input-wrap"><i class="fa-solid fa-tag"></i><input type="text" autocomplete="new-password" id="debt-note" placeholder="مثلاً: دين سيارة" style="text-align:right;padding-right:34px !important;"></div>
             <div class="modal-btns">
                 <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
@@ -889,7 +898,11 @@
                 </div>
             </div>
             <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" autocomplete="new-password" id="edit-name" placeholder="اسم الشخص"></div>
-            <div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" autocomplete="new-password" id="edit-amount" placeholder="المبلغ الكلي" inputmode="decimal"></div>
+            <div class="input-wrap" id="edit-amount-wrap"><i class="fa-solid fa-coins"></i><input type="number" autocomplete="new-password" id="edit-amount" placeholder="المبلغ الكلي" inputmode="decimal"></div>
+            <div id="edit-cost-wrap" style="display:none;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:7px;">
+                <input type="number" autocomplete="new-password" id="edit-cost-amount" placeholder="سعر الكلفة" inputmode="decimal" style="height:44px;padding:0 12px;background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.88rem;text-align:center;outline:none;box-sizing:border-box;">
+                <input type="number" autocomplete="new-password" id="edit-amount-taq" placeholder="سعر التقسيط" inputmode="decimal" style="height:44px;padding:0 12px;background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.88rem;text-align:center;outline:none;box-sizing:border-box;">
+            </div>
             <div class="input-wrap"><i class="fa-solid fa-tag"></i><input type="text" autocomplete="new-password" id="edit-debt-note" placeholder="مثلاً: دين سيارة" style="text-align:right;padding-right:34px !important;"></div>
             <div class="modal-btns">
                 <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
@@ -1064,7 +1077,8 @@
     </div>
 
 <script>
-    let debts = JSON.parse(localStorage.getItem('my_debts_final_v3')) || [];
+    let appMode = localStorage.getItem('app_mode') || 'debts';
+    let debts = JSON.parse(localStorage.getItem(appMode === 'taqseet' ? 'my_taqseet_v1' : 'my_debts_final_v3')) || [];
 
     function initial(name) { return name.trim().charAt(0).toUpperCase(); }
 
@@ -1099,16 +1113,77 @@
         setTimeout(() => document.getElementById('name').focus(), 100);
     }
 
+    function applyAppMode() {
+        const isTaq = appMode === 'taqseet';
+        // العنوان
+        document.querySelector('header h1').textContent = isTaq ? 'سجل الأقساط' : 'سجل الديون';
+        document.title = isTaq ? 'سجل الأقساط' : 'سجل الديون';
+        // زر التبديل
+        document.getElementById('mode-switch-label').textContent = isTaq ? 'وضع الديون' : 'وضع التقسيط';
+        // FAB
+        document.querySelector('.fab').innerHTML = `<i class="fa-solid fa-plus"></i> ${isTaq ? 'إضافة تقسيط' : 'إضافة دين'}`;
+        // القائمة
+        document.querySelectorAll('.lbl-completed').forEach(e => e.textContent = isTaq ? 'أقساط مكتملة' : 'ديون مكتملة');
+        document.querySelectorAll('.lbl-edit').forEach(e => e.textContent = isTaq ? 'تعديل تقسيط' : 'تعديل دين');
+        document.querySelectorAll('.lbl-sort').forEach(e => e.textContent = isTaq ? 'فرز الأقساط' : 'فرز الديون');
+        document.querySelectorAll('.lbl-export').forEach(e => e.textContent = isTaq ? 'تصدير قسط كصورة' : 'تصدير دين كصورة');
+        // نافذة الإضافة
+        document.getElementById('add-modal-title').textContent = isTaq ? 'تقسيط جديد' : 'دين جديد';
+        document.getElementById('add-modal-subtitle').textContent = isTaq ? 'أضف اسم العميل والمبالغ' : 'أضف اسم الشخص والمبلغ';
+        document.getElementById('name').placeholder = isTaq ? 'اسم العميل' : 'اسم الشخص';
+        document.getElementById('debt-note').placeholder = isTaq ? 'مثلاً: Samsung A07' : 'مثلاً: دين سيارة';
+        document.getElementById('cost-wrap').style.display = isTaq ? 'grid' : 'none';
+        document.querySelector('#cost-wrap + .input-wrap input[id="amount"]') && null;
+        const amountWrap = document.getElementById('amount').closest('.input-wrap');
+        if (amountWrap) amountWrap.style.display = isTaq ? 'none' : '';
+        // نافذة التعديل
+        document.getElementById('edit-name').placeholder = isTaq ? 'اسم العميل' : 'اسم الشخص';
+        document.getElementById('edit-debt-note').placeholder = isTaq ? 'مثلاً: Samsung A07' : 'مثلاً: دين سيارة';
+        document.getElementById('edit-amount-wrap').style.display = isTaq ? 'none' : '';
+        document.getElementById('edit-cost-wrap').style.display = isTaq ? 'grid' : 'none';
+        // البانر
+        document.getElementById('banner-remaining-label').textContent = isTaq ? 'المتبقي' : 'الديون المتبقية';
+        document.getElementById('banner-original-label').textContent = isTaq ? 'إجمالي التقسيط' : 'إجمالي الديون';
+        const profitSection = document.getElementById('banner-profit');
+        if (isTaq) profitSection.classList.remove('hidden');
+        else profitSection.classList.add('hidden');
+    }
+
+    function switchAppMode() {
+        appMode = appMode === 'debts' ? 'taqseet' : 'debts';
+        localStorage.setItem('app_mode', appMode);
+        debts = JSON.parse(localStorage.getItem(appMode === 'taqseet' ? 'my_taqseet_v1' : 'my_debts_final_v3') || '[]');
+        applyAppMode();
+        render();
+        initBanner();
+    }
+
+    function getStorageKey() {
+        return appMode === 'taqseet' ? 'my_taqseet_v1' : 'my_debts_final_v3';
+    }
+
+    function getArchivedKey() {
+        return appMode === 'taqseet' ? 'my_taqseet_archived' : 'my_debts_archived';
+    }
+
     function addDebt() {
         const name = document.getElementById('name').value.trim();
-        const amount = parseFloat(document.getElementById('amount').value);
         const note = document.getElementById('debt-note').value.trim();
+        let amount, cost = 0;
+        if (appMode === 'taqseet') {
+            amount = parseFloat(document.getElementById('amount-taq').value);
+            cost   = parseFloat(document.getElementById('cost-amount').value) || 0;
+        } else {
+            amount = parseFloat(document.getElementById('amount').value);
+        }
         if (!name || isNaN(amount) || amount <= 0) return;
-        debts.unshift({ id: Date.now(), name, original: amount, remaining: amount, note, payments: [] });
+        debts.unshift({ id: Date.now(), name, original: amount, remaining: amount, cost, note, payments: [] });
         save(); closeModals();
         document.getElementById('name').value = '';
         document.getElementById('amount').value = '';
         document.getElementById('amount').classList.remove('has-value');
+        document.getElementById('amount-taq').value = '';
+        document.getElementById('cost-amount').value = '';
         document.getElementById('debt-note').value = '';
     }
 
@@ -1174,9 +1249,14 @@
     function openEditModal(id) {
         const debt = debts.find(d => d.id === id);
         document.getElementById('edit-name').value = debt.name;
-        document.getElementById('edit-amount').value = debt.original;
-        document.getElementById('edit-amount').classList.add('has-value');
         document.getElementById('edit-debt-note').value = debt.note || '';
+        if (appMode === 'taqseet') {
+            document.getElementById('edit-amount-taq').value = debt.original;
+            document.getElementById('edit-cost-amount').value = debt.cost || '';
+        } else {
+            document.getElementById('edit-amount').value = debt.original;
+            document.getElementById('edit-amount').classList.add('has-value');
+        }
         document.getElementById('edit-modal-overlay').classList.add('active');
         setTimeout(() => document.getElementById('edit-name').focus(), 100);
         document.getElementById('edit-confirm-btn').onclick = () => confirmEdit(id);
@@ -1185,14 +1265,21 @@
     function confirmEdit(id) {
         const debt = debts.find(d => d.id === id);
         const name = document.getElementById('edit-name').value.trim();
-        const newOriginal = parseFloat(document.getElementById('edit-amount').value);
         const note = document.getElementById('edit-debt-note').value.trim();
+        let newOriginal, cost = debt.cost || 0;
+        if (appMode === 'taqseet') {
+            newOriginal = parseFloat(document.getElementById('edit-amount-taq').value);
+            cost = parseFloat(document.getElementById('edit-cost-amount').value) || 0;
+        } else {
+            newOriginal = parseFloat(document.getElementById('edit-amount').value);
+        }
         if (!name || isNaN(newOriginal) || newOriginal <= 0) return;
         const paid = debt.original - debt.remaining;
         debt.name = name;
         debt.original = newOriginal;
         debt.remaining = Math.max(0, newOriginal - paid);
         debt.note = note;
+        debt.cost = cost;
         save(); closeModals();
     }
 
@@ -1210,9 +1297,9 @@
         document.getElementById('del-confirm-btn').className = isDone ? 'mbtn mbtn-ok' : 'mbtn mbtn-del';
         document.getElementById('del-confirm-btn').onclick = () => {
             if (isDone) {
-                const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+                const archived = JSON.parse(localStorage.getItem(getArchivedKey()) || '[]');
                 archived.unshift(debt);
-                localStorage.setItem('my_debts_archived', JSON.stringify(archived));
+                localStorage.setItem(getArchivedKey(), JSON.stringify(archived));
             }
             debts = debts.filter(d => d.id !== id);
             save(); closeModals(); clearFilter();
@@ -1318,18 +1405,23 @@
 
     function toggleBannerOriginal() {
         const el = document.getElementById('banner-original');
+        const el2 = document.getElementById('banner-profit');
         if (!el) return;
         const hidden = el.classList.toggle('hidden');
+        if (el2 && appMode === 'taqseet') el2.classList.toggle('hidden', hidden);
         localStorage.setItem('bannerOriginalHidden', hidden ? '1' : '0');
     }
 
     function initBanner() {
         const el = document.getElementById('banner-original');
+        const el2 = document.getElementById('banner-profit');
         if (!el) return;
         if (localStorage.getItem('bannerOriginalHidden') === '1') {
             el.classList.add('hidden');
+            if (el2 && appMode === 'taqseet') el2.classList.add('hidden');
         } else {
             el.classList.remove('hidden');
+            if (el2 && appMode === 'taqseet') el2.classList.remove('hidden');
         }
     }
 
@@ -1340,16 +1432,17 @@
             // إعادة توزيع الجدول إذا وجد
             if (d.scheduled && d.scheduled.length && d.remaining > 0) {
                 const count = d.scheduled.length;
-                const per = Math.round((d.remaining / count) * 100) / 100;
+                const per = Math.ceil((d.remaining / count) * 10) / 10;
                 d.scheduled.forEach(s => s.amount = per);
+                d.roundedTotal = (d.original - d.remaining) + Math.round(per * count * 100) / 100;
             }
         });
-        localStorage.setItem('my_debts_final_v3', JSON.stringify(debts));
+        localStorage.setItem(getStorageKey(), JSON.stringify(debts));
         render();
     }
 
     function exportData() {
-        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        const archived = JSON.parse(localStorage.getItem(getArchivedKey()) || '[]');
         const activeIds = new Set(debts.map(d => d.id));
         const archivedOnly = archived.filter(d => !activeIds.has(d.id));
         const all = [...debts, ...archivedOnly];
@@ -1458,7 +1551,7 @@
     // ─── الديون المكتملة ───
     function getCompletedList() {
         const active = debts.filter(d => d.remaining <= 0);
-        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        const archived = JSON.parse(localStorage.getItem(getArchivedKey()) || '[]');
         // دمج بدون تكرار (الأرشيف قد يحتوي ديوناً محذوفة من الرئيسية)
         const activeIds = new Set(active.map(d => d.id));
         const archivedOnly = archived.filter(d => !activeIds.has(d.id));
@@ -1490,9 +1583,9 @@
             delBtn.style.cssText = 'width:44px;height:44px;background:#fff0f0;border:1px solid #fecaca;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--danger);font-size:0.8rem;';
             delBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
             delBtn.onclick = () => {
-                let archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+                let archived = JSON.parse(localStorage.getItem(getArchivedKey()) || '[]');
                 archived = archived.filter(a => a.id !== d.id);
-                localStorage.setItem('my_debts_archived', JSON.stringify(archived));
+                localStorage.setItem(getArchivedKey(), JSON.stringify(archived));
                 filterCompletedList(document.getElementById('completed-search').value);
             };
             row.appendChild(btn);
@@ -1514,7 +1607,7 @@
     }
 
     function showSingleCard(id) {
-        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        const archived = JSON.parse(localStorage.getItem(getArchivedKey()) || '[]');
         const debt = debts.find(d => d.id === id) || archived.find(d => d.id === id);
         if (!debt) return;
         const container = document.getElementById('list-container');
@@ -1670,7 +1763,10 @@
         const count = parseInt(document.getElementById('schedule-count').value);
         if (!count || count < 1 || !debt) return;
 
-        const perAmount = Math.round((debt.remaining / count) * 100) / 100;
+        // تقريب لأقرب 0.10
+        const perAmount = Math.ceil((debt.remaining / count) * 10) / 10;
+        debt.roundedTotal = (debt.original - debt.remaining) + Math.round(perAmount * count * 100) / 100;
+
         const rawDate = normalizeDate(document.getElementById('schedule-start-date').value.trim());
         const parts = rawDate ? rawDate.split('/').map(Number) : [];
         const startDate = (parts.length === 3 && !isNaN(parts[0]))
@@ -1719,7 +1815,7 @@
         </div>`;
 
     function openStatsModal() {
-        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        const archived = JSON.parse(localStorage.getItem(getArchivedKey()) || '[]');
         const activeIds = new Set(debts.map(d => d.id));
         const archivedOnly = archived.filter(d => !activeIds.has(d.id));
 
@@ -1741,12 +1837,13 @@
         })[0];
 
         const rows = [
-            statsRow('fa-money-bills',       '#4361ee','', 'إجمالي الديون الكلية', totalOriginal.toLocaleString()),
+            statsRow('fa-money-bills',       '#4361ee','', appMode === 'taqseet' ? 'إجمالي التقسيط الكلي' : 'إجمالي الديون الكلية', totalOriginal.toLocaleString()),
             statsRow('fa-circle-check',      '#10b981','', 'إجمالي المحصّل',        totalCollected.toLocaleString()),
             statsRow('fa-hourglass-half',    '#ef4444','', 'إجمالي المتبقي',        totalRemaining.toLocaleString()),
             statsRow('fa-percent',           '#f97316','', 'نسبة التحصيل',          collectPct + '%'),
+            appMode === 'taqseet' ? statsRow('fa-chart-line', '#10b981','', 'إجمالي الأرباح', debts.filter(d=>d.remaining>0).reduce((s,d)=>s+((d.roundedTotal||d.original)-(d.cost||0)),0).toLocaleString()) : '',
             statsRow('fa-user-clock',        '#4361ee','', 'نشطة / مكتملة',         activeCount + ' / ' + doneCount),
-            biggestDebt ? statsRow('fa-arrow-up-wide-short','#ef4444','','أكبر دين متبقي', biggestDebt.name + ' - ' + biggestDebt.remaining.toLocaleString()) : '',
+            biggestDebt ? statsRow('fa-arrow-up-wide-short','#ef4444','', appMode === 'taqseet' ? 'أكبر قسط متبقي' : 'أكبر دين متبقي', biggestDebt.name + ' - ' + biggestDebt.remaining.toLocaleString()) : '',
             nextDue     ? statsRow('fa-calendar-day',       '#f97316','','أقرب دفعة مستحقة', nextDue.name + ' - ' + nextDue.amount.toLocaleString()) : ''
         ].filter(Boolean);
 
@@ -1763,7 +1860,7 @@
 
     // ─── تصدير دين معين ───
     function getAllExportList() {
-        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        const archived = JSON.parse(localStorage.getItem(getArchivedKey()) || '[]');
         const activeIds = new Set(debts.map(d => d.id));
         const archivedOnly = archived.filter(d => !activeIds.has(d.id));
         return [...debts, ...archivedOnly];
@@ -1814,7 +1911,7 @@
             });
         }
 
-        const archived = JSON.parse(localStorage.getItem('my_debts_archived') || '[]');
+        const archived = JSON.parse(localStorage.getItem(getArchivedKey()) || '[]');
         const debt = debts.find(d => d.id === id) || archived.find(d => d.id === id);
         if (!debt) return;
 
@@ -1971,8 +2068,13 @@
         });
 
         document.getElementById('grand-total').innerText = total.toLocaleString();
-        const totalOriginalActive = sortedDebts.filter(d => d.remaining > 0).reduce((s, d) => s + d.original, 0);
+        const activeDebts = sortedDebts.filter(d => d.remaining > 0);
+        const totalOriginalActive = activeDebts.reduce((s, d) => s + d.original, 0);
         document.getElementById('grand-original').innerText = totalOriginalActive.toLocaleString();
+        if (appMode === 'taqseet') {
+            const totalProfit = activeDebts.reduce((s, d) => s + ((d.roundedTotal || d.original) - (d.cost || 0)), 0);
+            document.getElementById('grand-profit').innerText = totalProfit.toLocaleString();
+        }
 
         // إشعارات الدفعات المستحقة
         renderDueNotifications();
@@ -2009,7 +2111,7 @@
     function saveDragOrder() {
         const ids = [...document.querySelectorAll('.debt-card')].map(c => parseInt(c.dataset.id));
         debts = ids.map(id => debts.find(d => d.id === id)).filter(Boolean);
-        localStorage.setItem('my_debts_final_v3', JSON.stringify(debts));
+        localStorage.setItem(getStorageKey(), JSON.stringify(debts));
     }
 
     function initDrag() {
@@ -2169,6 +2271,7 @@
 
     render();
     initBanner();
+    applyAppMode();
 
     document.getElementById('pay-amount').addEventListener('input', function() {
         this.classList.toggle('has-value', this.value !== '');
