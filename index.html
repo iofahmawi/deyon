@@ -364,9 +364,8 @@
             align-items: center;
             justify-content: space-between;
             background: #fff;
-            border: 1px solid #fecaca;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
             border-radius: 12px;
             padding: 10px 14px;
             margin-bottom: 14px;
@@ -903,10 +902,11 @@
         <div class="modal" onclick="event.stopPropagation()">
             <div class="modal-top">
                 <div class="modal-ico edit-pay"><i class="fa-solid fa-pen-to-square"></i></div>
-                <div>
+                <div style="flex:1;">
                     <p class="modal-title">تعديل الدفعة</p>
                     <p class="modal-subtitle">عدّل المبلغ أو الملاحظة</p>
                 </div>
+                <button onclick="closeModals()" style="background:none;border:none;font-size:1.1rem;color:var(--text-muted);cursor:pointer;padding:4px;line-height:1;align-self:flex-start;margin-top:2px;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="input-wrap">
                 <input type="number" autocomplete="new-password" id="edit-pay-amount" inputmode="decimal" placeholder="المبلغ" style="text-align:center;padding:0 12px !important;">
@@ -918,7 +918,6 @@
                 <input type="text" autocomplete="new-password" id="edit-pay-date" inputmode="numeric" placeholder="2025-3-5" style="text-align:center;padding-right:12px !important;">
             </div>
             <div class="modal-btns">
-                <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
                 <button class="mbtn mbtn-del" id="edit-pay-del-btn">حذف</button>
                 <button class="mbtn mbtn-ok" id="edit-pay-confirm-btn">حفظ</button>
             </div>
