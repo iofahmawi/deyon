@@ -837,10 +837,11 @@
         <div class="modal" onclick="event.stopPropagation()">
             <div class="modal-top">
                 <div class="modal-ico pay"><i class="fa-solid fa-hand-holding-dollar"></i></div>
-                <div>
+                <div style="flex:1;">
                     <p class="modal-title" id="pay-title">تسديد دفعة</p>
                     <p class="modal-subtitle">أدخل المبلغ المدفوع</p>
                 </div>
+                <button onclick="closeModals()" style="background:none;border:none;font-size:1.1rem;color:var(--text-muted);cursor:pointer;padding:4px;line-height:1;align-self:flex-start;margin-top:2px;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="input-wrap">
                 <input type="number" autocomplete="new-password" id="pay-amount" inputmode="decimal" placeholder="المبلغ">
@@ -858,7 +859,6 @@
                 </div>
             </div>
             <div class="modal-btns">
-                <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
                 <button class="mbtn mbtn-ok" id="pay-confirm-btn">تأكيد</button>
             </div>
         </div>
