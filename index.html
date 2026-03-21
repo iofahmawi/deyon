@@ -372,7 +372,7 @@
             margin-bottom: 14px;
             animation: fadeIn 0.2s ease;
         }
-        .due-notif-info { display: flex; flex-direction: column; gap: 2px; }
+        .due-notif-info { display: flex; align-items: center; gap: 8px; flex:1; }
         .due-notif-name { font-size: 0.88rem; font-weight: 700; color: var(--text-dark); }
         .due-notif-amount { font-size: 0.78rem; color: var(--danger); font-weight: 700; }
         .due-notif-close {
@@ -1697,10 +1697,8 @@
                 el.className = 'due-notif';
                 el.style.cursor = 'pointer';
                 el.innerHTML = `
-                    <div class="due-notif-info" onclick="scrollToDebtCard(${debt.id})" style="flex:1;cursor:pointer;">
-                        <span class="due-notif-name"><i class="fa-solid fa-clock" style="margin-left:5px;color:var(--danger);font-size:0.75rem;"></i>${debt.name}</span>
-                        <span class="due-notif-amount">دفعة مستحقة &nbsp;${s.amount.toLocaleString()}</span>
-                    </div>
+                    <span class="due-notif-name" onclick="scrollToDebtCard(${debt.id})" style="cursor:pointer;flex:0 0 auto;"><i class="fa-solid fa-clock" style="margin-left:5px;color:var(--danger);font-size:0.75rem;"></i>${debt.name}</span>
+                    <span class="due-notif-amount" style="flex:1;text-align:center;" onclick="scrollToDebtCard(${debt.id})">دفعة مستحقة ${s.amount.toLocaleString()}</span>
                     <button class="due-notif-close" onclick="dismissDue('${key}')"><i class="fa-solid fa-xmark"></i></button>`;
                 container.appendChild(el);
             });
