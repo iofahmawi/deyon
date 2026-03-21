@@ -2044,11 +2044,11 @@
                 <div class="debt-card" data-id="${d.id}" onclick="toggleHistory(${d.id})" draggable="${currentSort === 'manual' ? 'true' : 'false'}" style="cursor:pointer; animation: fadeIn 0.25s ${i*0.04}s both;">
 
                     <div class="card-name-row">
-                        <div style="flex:1">
+                        <div style="flex:0 0 auto;max-width:42%;">
                             <div class="person-name">${d.name}</div>
                         </div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            ${d.note ? `<div style="font-size:0.72rem;color:var(--text-muted);position:absolute;left:50%;transform:translateX(-50%)">${d.note}</div>` : ''}
+                        <div style="flex:1;text-align:center;font-size:0.72rem;color:var(--text-muted);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.note || ''}</div>
+                        <div style="flex:0 0 auto;">
                             <div style="font-size:${done ? '1.4rem' : '1.15rem'};font-weight:900;color:${done ? 'var(--success)' : 'var(--text-dark)'}">${done ? '✓' : d.remaining.toLocaleString()}</div>
                         </div>
                     </div>
