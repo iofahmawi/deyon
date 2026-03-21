@@ -1353,10 +1353,12 @@
         const activeIds = new Set(debts.map(d => d.id));
         const archivedOnly = archived.filter(d => !activeIds.has(d.id));
         const all = [...debts, ...archivedOnly];
+        const now = new Date();
+        const dateStr = `${now.getDate()}-${now.getMonth()+1}-${now.getFullYear()}`;
         const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'Backup.json';
+        a.download = `Deyon ${dateStr}.json`;
         a.click();
     }
 
