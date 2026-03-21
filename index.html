@@ -938,19 +938,17 @@
         <div class="modal" onclick="event.stopPropagation()">
             <div class="modal-top">
                 <div class="modal-ico add"><i class="fa-solid fa-image"></i></div>
-                <div>
+                <div style="flex:1;">
                     <p class="modal-title">تصدير دين معين</p>
                     <p class="modal-subtitle">اختر الشخص لتصدير بطاقته كصورة</p>
                 </div>
+                <button onclick="closeExportPersonModal()" style="background:none;border:none;font-size:1.1rem;color:var(--text-muted);cursor:pointer;padding:4px;line-height:1;align-self:flex-start;margin-top:2px;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:10px;">
                 <button id="export-tab-li" onclick="switchExportTab('لي')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:var(--primary);color:white;transition:all 0.2s;">ديون لي</button>
                 <button id="export-tab-alay" onclick="switchExportTab('علي')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">ديون علي</button>
             </div>
             <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:0 12px;margin-bottom:10px;height:44px;"><i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0;"></i><input type="text" autocomplete="new-password" id="export-search" placeholder="ابحث عن اسم..." oninput="filterExportList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;" onkeydown="if(event.key==='Enter')this.blur();"></div><div id="export-person-list" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
-            <div class="modal-btns" style="margin-top:14px;">
-                <button class="mbtn mbtn-cancel" onclick="closeExportPersonModal()">إلغاء</button>
-            </div>
         </div>
     </div>
 
@@ -959,10 +957,11 @@
         <div class="modal" onclick="event.stopPropagation()">
             <div class="modal-top">
                 <div class="modal-ico" style="background:#d1fae5;color:var(--success);"><i class="fa-solid fa-circle-check"></i></div>
-                <div>
+                <div style="flex:1;">
                     <p class="modal-title">الديون المكتملة</p>
                     <p class="modal-subtitle">اضغط على اسم للانتقال إلى بطاقته</p>
                 </div>
+                <button onclick="closeCompletedModal()" style="background:none;border:none;font-size:1.1rem;color:var(--text-muted);cursor:pointer;padding:4px;line-height:1;align-self:flex-start;margin-top:2px;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:10px;">
                 <button id="completed-tab-li" onclick="switchCompletedTab('لي')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:var(--success);color:white;transition:all 0.2s;">ديون لي</button>
@@ -973,9 +972,6 @@
                 <input type="text" autocomplete="new-password" id="completed-search" placeholder="ابحث عن اسم..." oninput="filterCompletedList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;" onkeydown="if(event.key==='Enter')this.blur();">
             </div>
             <div id="completed-list" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
-            <div class="modal-btns" style="margin-top:14px;">
-                <button class="mbtn mbtn-cancel" onclick="closeCompletedModal()">إلغاء</button>
-            </div>
         </div>
     </div>
 
@@ -1032,10 +1028,11 @@
         <div class="modal" onclick="event.stopPropagation()">
             <div class="modal-top">
                 <div class="modal-ico" style="background:#eff6ff;color:var(--primary);"><i class="fa-solid fa-pen-to-square"></i></div>
-                <div>
+                <div style="flex:1;">
                     <p class="modal-title">تعديل دين</p>
                     <p class="modal-subtitle">اختر الدين الذي تريد تعديله</p>
                 </div>
+                <button onclick="closeModals()" style="background:none;border:none;font-size:1.1rem;color:var(--text-muted);cursor:pointer;padding:4px;line-height:1;align-self:flex-start;margin-top:2px;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:10px;">
                 <button id="edit-debt-tab-li" onclick="switchEditDebtTab('لي')" style="flex:1;border:none;padding:7px;border-radius:8px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;background:var(--primary);color:white;transition:all 0.2s;">ديون لي</button>
@@ -1046,9 +1043,6 @@
                 <input type="text" autocomplete="new-password" id="edit-debt-search" placeholder="ابحث عن اسم..." oninput="filterEditDebtList(this.value)" style="border:none!important;box-shadow:none!important;background:none;outline:none;font-family:inherit;font-size:0.88rem;font-weight:600;color:var(--text-dark);width:100%;padding:0;" onkeydown="if(event.key==='Enter')this.blur();">
             </div>
             <div id="edit-debt-select-list" style="max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
-            <div class="modal-btns" style="margin-top:14px;">
-                <button class="mbtn mbtn-cancel" onclick="closeModals()">إلغاء</button>
-            </div>
         </div>
     </div>
 
