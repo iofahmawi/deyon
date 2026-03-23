@@ -1490,7 +1490,8 @@
 
         const backup = {
             debts: [...debtsData, ...debtsArchivedOnly],
-            taqseet: [...taqData, ...taqArchivedOnly]
+            taqseet: [...taqData, ...taqArchivedOnly],
+            app_mode: localStorage.getItem('app_mode') || 'debts'
         };
         const now = new Date();
         const dateStr = `${now.getDate()}-${now.getMonth()+1}-${now.getFullYear()}`;
@@ -2016,12 +2017,18 @@
                 if (parsed && parsed.debts && parsed.taqseet) {
                     localStorage.setItem('my_debts_final_v3', JSON.stringify(parsed.debts));
                     localStorage.setItem('my_taqseet_v1', JSON.stringify(parsed.taqseet));
+                    // استعادة الوضع وقت التصدير
+                    if (parsed.app_mode) {
+                        localStorage.setItem('app_mode', parsed.app_mode);
+                        appMode = parsed.app_mode;
+                    }
                     debts = JSON.parse(localStorage.getItem(getStorageKey()) || '[]');
                 } else {
                     // الشكل القديم: مصفوفة مباشرة
                     debts = parsed;
                 }
                 save();
+                applyAppMode();
             }
             catch { alert('خطأ في استيراد الملف!'); }
         };
