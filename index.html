@@ -1466,9 +1466,10 @@
             // إعادة توزيع الجدول إذا وجد
             if (d.scheduled && d.scheduled.length && d.remaining > 0) {
                 const count = d.scheduled.length;
-                const per = Math.ceil((d.remaining / count) * 10) / 10;
-                d.scheduled.forEach(s => s.amount = per);
-                d.roundedTotal = (d.original - d.remaining) + Math.round(per * count * 100) / 100;
+                const per = Math.ceil((d.remaining / count) * 20) / 20;
+                const lastPer = Math.round((d.remaining - per * (count - 1)) * 100) / 100;
+                d.scheduled.forEach((s, i) => s.amount = i === count - 1 ? lastPer : per);
+                d.roundedTotal = d.original;
             }
         });
         localStorage.setItem(getStorageKey(), JSON.stringify(debts));
@@ -1806,9 +1807,10 @@
         const count = parseInt(document.getElementById('schedule-count').value);
         if (!count || count < 1 || !debt) return;
 
-        // تقريب لأقرب 0.10
-        const perAmount = Math.ceil((debt.remaining / count) * 10) / 10;
-        debt.roundedTotal = (debt.original - debt.remaining) + Math.round(perAmount * count * 100) / 100;
+        // تقريب لأقرب 0.05 — القسط الأخير يستوعب الفرق تلقائياً
+        const perAmount = Math.ceil((debt.remaining / count) * 20) / 20;
+        const lastAmount = Math.round((debt.remaining - perAmount * (count - 1)) * 100) / 100;
+        debt.roundedTotal = debt.original;
 
         const rawDate = normalizeDate(document.getElementById('schedule-start-date').value.trim());
         const parts = rawDate ? rawDate.split('/').map(Number) : [];
@@ -1823,7 +1825,7 @@
             if (selectedType === 'weekly')  d.setDate(d.getDate() + i * 7);
             if (selectedType === 'monthly') d.setMonth(d.getMonth() + i);
             scheduled.push({
-                amount: perAmount,
+                amount: i === count - 1 ? lastAmount : perAmount,
                 date: `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`,
                 type: selectedType
             });
