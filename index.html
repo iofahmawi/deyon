@@ -1065,7 +1065,7 @@
     </div>
 
     <!-- مودال الإحصائيات -->
-    <div class="modal-overlay" id="stats-modal-overlay" onclick="closeStatsModal()" style="align-items:center;">
+    <div class="modal-overlay" id="stats-modal-overlay" onclick="closeStatsModal()" style="align-items:center;padding:20px;">
         <div class="modal" onclick="event.stopPropagation()">
             <div class="modal-top">
                 <div class="modal-ico" style="background:#eff2ff;color:var(--primary);"><i class="fa-solid fa-chart-pie"></i></div>
@@ -1849,8 +1849,18 @@
     }
 
     // ─── الإحصائيات ───
+    const statsCell = (icon, color, label, value) =>
+        `<div style="flex:1;border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;min-width:0;">
+            <div style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:${color};font-size:0.8rem;flex-shrink:0;">
+                <i class="fa-solid ${icon}"></i>
+            </div>
+            <div style="min-width:0;">
+                <div style="font-size:0.68rem;color:#64748b;font-weight:600;white-space:nowrap;">${label}</div>
+                <div style="font-size:0.9rem;font-weight:900;color:#1e293b;">${value}</div>
+            </div>
+        </div>`;
     const statsRow = (icon, color, bg, label, value) =>
-        `<div style="display:flex;align-items:center;gap:10px;padding:8px 4px;">
+        `<div style="border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;">
             <div style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:${color};font-size:0.8rem;flex-shrink:0;">
                 <i class="fa-solid ${icon}"></i>
             </div>
@@ -1882,20 +1892,38 @@
             return toMs(a.date) - toMs(b.date);
         })[0];
 
-        const rows = [
-            statsRow('fa-money-bills',       '#4361ee','', appMode === 'taqseet' ? 'إجمالي التقسيط الكلي' : 'إجمالي الديون الكلية', totalOriginal.toLocaleString()),
-            statsRow('fa-circle-check',      '#10b981','', 'إجمالي المحصّل',        totalCollected.toLocaleString()),
-            statsRow('fa-hourglass-half',    '#ef4444','', 'إجمالي المتبقي',        totalRemaining.toLocaleString()),
-            statsRow('fa-percent',           '#f97316','', 'نسبة التحصيل',          collectPct + '%'),
-            appMode === 'taqseet' ? statsRow('fa-chart-line', '#10b981','', 'إجمالي الأرباح', debts.filter(d=>d.remaining>0).reduce((s,d)=>s+((d.roundedTotal||d.original)-(d.cost||0)),0).toLocaleString()) : '',
-            statsRow('fa-user-clock',        '#4361ee','', 'نشطة / مكتملة',         activeCount + ' / ' + doneCount),
-            biggestDebt ? statsRow('fa-arrow-up-wide-short','#ef4444','', appMode === 'taqseet' ? 'أكبر قسط متبقي' : 'أكبر دين متبقي', biggestDebt.name + ' - ' + biggestDebt.remaining.toLocaleString()) : '',
-            nextDue     ? statsRow('fa-calendar-day',       '#f97316','','أقرب دفعة مستحقة', nextDue.name + ' - ' + nextDue.amount.toLocaleString()) : ''
+        const profit = appMode === 'taqseet'
+            ? debts.filter(d=>d.remaining>0).reduce((s,d)=>s+((d.roundedTotal||d.original)-(d.cost||0)),0).toLocaleString()
+            : null;
+
+        // صفوف ثنائية (أرقام فقط)
+        const pairRows = [
+            `<div style="display:flex;gap:8px;">
+                ${statsCell('fa-money-bills','#4361ee', appMode==='taqseet'?'إجمالي التقسيط':'إجمالي الديون', totalOriginal.toLocaleString())}
+                ${statsCell('fa-circle-check','#10b981','إجمالي المحصّل', totalCollected.toLocaleString())}
+            </div>`,
+            `<div style="display:flex;gap:8px;">
+                ${statsCell('fa-hourglass-half','#ef4444','إجمالي المتبقي', totalRemaining.toLocaleString())}
+                ${statsCell('fa-percent','#f97316','نسبة التحصيل', collectPct + '%')}
+            </div>`,
+            profit !== null
+            ? `<div style="display:flex;gap:8px;">
+                ${statsCell('fa-chart-line','#10b981','إجمالي الأرباح', profit)}
+                ${statsCell('fa-user-clock','#4361ee','نشطة / مكتملة', activeCount + ' / ' + doneCount)}
+               </div>`
+            : `<div style="display:flex;gap:8px;">
+                ${statsCell('fa-user-clock','#4361ee','نشطة / مكتملة', activeCount + ' / ' + doneCount)}
+               </div>`
+        ];
+
+        // صفوف كاملة (بها أسماء)
+        const fullRows = [
+            biggestDebt ? statsRow('fa-arrow-up-wide-short','#ef4444','', appMode==='taqseet'?'أكبر قسط متبقي':'أكبر دين متبقي', biggestDebt.name + ' ← ' + biggestDebt.remaining.toLocaleString()) : '',
+            nextDue     ? statsRow('fa-calendar-day','#f97316','','أقرب دفعة مستحقة', nextDue.name + ' ← ' + nextDue.amount.toLocaleString()) : ''
         ].filter(Boolean);
 
-        document.getElementById('stats-content').innerHTML = rows.map((r, i) =>
-            i < rows.length - 1 ? r.replace('<div style="display:flex', '<div style="border-bottom:1px solid var(--border);display:flex') : r
-        ).join('');
+        document.getElementById('stats-content').innerHTML =
+            `<div style="display:flex;flex-direction:column;gap:8px;">${[...pairRows, ...fullRows].join('')}</div>`;
 
         document.getElementById('stats-modal-overlay').classList.add('active');
     }
