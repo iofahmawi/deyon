@@ -25,26 +25,6 @@
             --border: #e2e8f0;
         }
 
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1e293b;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            z-index: 9999;
-            opacity: 0;
-            transition: opacity 0.3s;
-            white-space: nowrap;
-            pointer-events: none;
-        }
-        .toast.show { opacity: 1; }
-
         @media (display-mode: standalone) {
             body { padding-top: 0.60cm !important; }
         }
@@ -807,8 +787,6 @@
                     <button onclick="closeMainMenu(); openExportPersonModal()"><i class="fa-solid fa-user"></i> <span class="lbl-export">تصدير دين كصورة</span></button>
                     <button onclick="closeMainMenu(); exportData()"><i class="fa-solid fa-database"></i> تصدير الكل</button>
                     <button onclick="closeMainMenu(); switchAppMode()"><i class="fa-solid fa-repeat"></i> <span id="mode-switch-label">وضع التقسيط</span></button>
-                    <button id="signin-menu-btn" onclick="closeMainMenu(); signInWithGoogle()"><i class="fa-brands fa-google"></i> تسجيل الدخول</button>
-                    <button id="signout-menu-btn" onclick="closeMainMenu(); signOutUser()" style="display:none;color:#ef4444;"><i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج</button>
                 </div>
             </div>
             <input type="file" id="file-input" onchange="importData(event)" accept=".json">
@@ -836,30 +814,7 @@
     </div>
 
     <div id="due-notifications"></div>
-    
-
     <div id="list-container"></div>
-
-    <!-- نافذة الاختيار عند وجود بيانات في السحابة -->
-    <div class="modal-overlay" id="cloud-choice-overlay" onclick="event.stopPropagation()">
-        <div class="modal" onclick="event.stopPropagation()">
-            <div class="modal-top">
-                <div class="modal-ico" style="background:#eff2ff;color:var(--primary);"><i class="fa-brands fa-google"></i></div>
-                <div style="flex:1;">
-                    <p class="modal-title">يوجد بيانات محفوظة</p>
-                    <p class="modal-subtitle">اختر ما تريد فعله</p>
-                </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
-                <button onclick="chooseCloud()" class="mbtn mbtn-ok" style="font-family:inherit;">
-                    <i class="fa-solid fa-cloud-arrow-down" style="margin-left:6px;"></i> استيراد من السحابة
-                </button>
-                <button onclick="chooseLocal()" class="mbtn" style="font-family:inherit;background:#f1f5f9;color:#1e293b;border:1px solid #e2e8f0;">
-                    <i class="fa-solid fa-mobile-screen" style="margin-left:6px;"></i> الاحتفاظ ببيانات الجهاز ورفعها
-                </button>
-            </div>
-        </div>
-    </div>
 
     <button class="fab" onclick="openAddModal()">
         <i class="fa-solid fa-plus"></i> إضافة دين
@@ -1125,8 +1080,6 @@
     </div>
 
 <script>
-    // ─── IndexedDB فقط - Firebase يُحمَّل عند الحاجة ───
-
     // ─── IndexedDB ───
     const DB_NAME = 'DebtTrackerDB';
     const DB_VERSION = 1;
@@ -1169,16 +1122,6 @@
 
     let appMode = 'debts';
     let debts = [];
-    let currentUser = null;
-
-    function showToast(msg) {
-        let t = document.getElementById('app-toast');
-        if (!t) { t = document.createElement('div'); t.id = 'app-toast'; t.className = 'toast'; document.body.appendChild(t); }
-        t.textContent = msg;
-        t.classList.add('show');
-        clearTimeout(t._timer);
-        t._timer = setTimeout(() => t.classList.remove('show'), 2500);
-    }
 
     function initial(name) { return name.trim().charAt(0).toUpperCase(); }
 
@@ -1575,7 +1518,6 @@
             }
         });
         await dbSet(getStorageKey(), debts);
-        await cloudSave(getStorageKey(), debts);
         render();
     }
 
@@ -2464,169 +2406,14 @@
         debts = orig;
     }
 
-    // ─── تهيئة التطبيق ───
-    // ─── Firebase ───
-    // ─── Firebase ───
-    let firebaseReady = false;
-    const FB_CONFIG = {
-        apiKey: "AIzaSyCPEMHXe13xR-wWD8Kwz0spr6SfaFY4bqU",
-        authDomain: "deyon-jo.firebaseapp.com",
-        projectId: "deyon-jo",
-        storageBucket: "deyon-jo.firebasestorage.app",
-        messagingSenderId: "95535249210",
-        appId: "1:95535249210:web:de2646b8d415f101d00203"
-    };
-    const DATA_KEYS = ['my_debts_final_v3','my_debts_archived','my_taqseet_v1','my_taqseet_archived','app_mode'];
-
-    async function loadFirebaseSDK() {
-        if (firebaseReady) return true;
-        try {
-            for (const src of [
-                'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
-                'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js',
-                'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js'
-            ]) { await new Promise((res, rej) => { const s = document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
-            if (!firebase.apps.length) firebase.initializeApp(FB_CONFIG);
-            firebaseReady = true;
-            return true;
-        } catch(e) { return false; }
-    }
-
-    // رفع للسحابة بعد كل تعديل
-    async function cloudSave(key, value) {
-        if (!currentUser || !firebaseReady) return;
-        try {
-            await firebase.firestore()
-                .collection('users').doc(currentUser.uid)
-                .collection('data').doc(key).set({ value });
-        } catch(e) { console.error('cloudSave error', e); }
-    }
-
-    // جلب كل البيانات من السحابة وتحميلها محلياً
-    async function pullFromCloud() {
-        const fsdb = firebase.firestore();
-        const uid = currentUser.uid;
-        for (const key of DATA_KEYS) {
-            const snap = await fsdb.collection('users').doc(uid).collection('data').doc(key).get();
-            if (snap.exists) {
-                const tx = db.transaction('store', 'readwrite');
-                tx.objectStore('store').put(snap.data().value, key);
-                await new Promise(r => tx.oncomplete = r);
-            }
-        }
-        appMode = (await dbGet('app_mode')) || 'debts';
-        debts = (await dbGet(appMode === 'taqseet' ? 'my_taqseet_v1' : 'my_debts_final_v3')) || [];
-        render();
-        await initBanner();
-        applyAppMode();
-    }
-
-    // رفع كل البيانات المحلية للسحابة
-    async function pushAllToCloud() {
-        const fsdb = firebase.firestore();
-        const uid = currentUser.uid;
-        for (const key of DATA_KEYS) {
-            const val = await dbGet(key);
-            if (val !== null) {
-                await fsdb.collection('users').doc(uid).collection('data').doc(key).set({ value: val });
-            }
-        }
-    }
-
-    // ─── شاشة الاختيار عند أول تشغيل مع Google ───
-    async function signInWithGoogle() {
-        const ok = await loadFirebaseSDK();
-        if (!ok) { showToast('⚠️ تعذر الاتصال، تحقق من الإنترنت'); return; }
-        try {
-            const result = await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
-            currentUser = result.user;
-
-            const cloudLinked = await dbGet('cloud_linked_' + currentUser.uid);
-
-            if (cloudLinked) {
-                // سبق الربط — لا نسأل، فقط نحدّث الواجهة
-                updateUserBar();
-                showToast('✅ تم تسجيل الدخول');
-            } else {
-                // أول ربط لهذا الحساب — تحقق من السحابة
-                const snap = await firebase.firestore()
-                    .collection('users').doc(currentUser.uid)
-                    .collection('data').doc('app_mode').get();
-                if (snap.exists) {
-                    // يوجد بيانات في السحابة — اسأل المستخدم
-                    openCloudChoiceModal();
-                } else {
-                    // السحابة فارغة — ارفع المحلي مباشرة
-                    await pushAllToCloud();
-                    await dbSet('cloud_linked_' + currentUser.uid, true);
-                    updateUserBar();
-                    showToast('✅ تم تسجيل الدخول وحفظ بياناتك');
-                }
-            }
-        } catch(e) { showToast('❌ فشل تسجيل الدخول'); }
-    }
-
-    function openCloudChoiceModal() {
-        document.getElementById('cloud-choice-overlay').classList.add('active');
-    }
-
-    async function chooseCloud() {
-        document.getElementById('cloud-choice-overlay').classList.remove('active');
-        showToast('⏳ جاري الاستيراد...');
-        await pullFromCloud();
-        await dbSet('cloud_linked_' + currentUser.uid, true);
-        updateUserBar();
-        showToast('✅ تم استيراد بياناتك من السحابة');
-    }
-
-    async function chooseLocal() {
-        document.getElementById('cloud-choice-overlay').classList.remove('active');
-        await pushAllToCloud();
-        await dbSet('cloud_linked_' + currentUser.uid, true);
-        updateUserBar();
-        showToast('✅ تم رفع بياناتك للسحابة');
-    }
-
-    async function signOutUser() {
-        if (!firebaseReady) return;
-        await firebase.auth().signOut();
-        currentUser = null;
-        updateUserBar();
-        showToast('تم تسجيل الخروج');
-    }
-
-    // ─── تهيئة التطبيق ───
+    // ─── تهيئة DB ثم تحميل البيانات ───
     openDB().then(async () => {
         appMode = (await dbGet('app_mode')) || 'debts';
         debts = (await dbGet(appMode === 'taqseet' ? 'my_taqseet_v1' : 'my_debts_final_v3')) || [];
         render();
         await initBanner();
         applyAppMode();
-
-        // استعادة جلسة Firebase إذا كانت محفوظة — بدون أي سؤال
-        const ok = await loadFirebaseSDK();
-        if (ok) {
-            firebase.auth().onAuthStateChanged(user => {
-                if (user) {
-                    currentUser = user;
-                    updateUserBar();
-                    // لا نمس البيانات — فقط نستعيد الجلسة
-                }
-            });
-        }
     });
-
-    function updateUserBar() {
-        const signinBtn = document.getElementById('signin-menu-btn');
-        const signoutBtn = document.getElementById('signout-menu-btn');
-        if (currentUser) {
-            if (signinBtn) signinBtn.style.display = 'none';
-            if (signoutBtn) signoutBtn.style.display = '';
-        } else {
-            if (signinBtn) signinBtn.style.display = '';
-            if (signoutBtn) signoutBtn.style.display = 'none';
-        }
-    }
 
     document.getElementById('pay-amount').addEventListener('input', function() {
         this.classList.toggle('has-value', this.value !== '');
@@ -2643,8 +2430,6 @@
     document.getElementById('edit-amount').addEventListener('input', function() {
         this.classList.toggle('has-value', this.value !== '');
     });
-
-
 </script>
     <script>
         if ('serviceWorker' in navigator) {
