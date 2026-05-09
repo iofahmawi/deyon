@@ -263,9 +263,9 @@
         }
 
         .amount-cell .cell-label {
-            font-size: 0.65rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
-            font-weight: 600;
+            font-weight: 700;
             display: block;
             margin-bottom: 3px;
         }
@@ -2169,7 +2169,7 @@
 
                         ${(d.payments.length || (d.scheduled && d.scheduled.length)) ? 
                           `<div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-top:2px;">
-                             <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-align:center;padding-bottom:8px;border-bottom:1px dashed var(--border);"><span style="display:inline-block;transform:translateY(-2px);">سجل الدفعات</span></div>
+                             <div style="font-size:0.8rem;font-weight:700;color:var(--text-muted);text-align:center;padding-bottom:8px;border-bottom:1px dashed var(--border);"><span style="display:inline-block;transform:translateY(-2px);">سجل الدفعات</span></div>
                              ${d.payments.map((p, pi) => `
                                 <div class="history-item" data-debt-id="${d.id}" data-pay-idx="${pi}">
                                     <span class="history-amount">${p.amount.toLocaleString()}</span>
