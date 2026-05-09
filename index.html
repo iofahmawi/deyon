@@ -295,6 +295,7 @@
 
         /* شريط التقدم */
         .progress-section { margin-bottom: 11px; }
+        .debt-card.card-open .progress-section { margin: 2px 0 13px; }
 
         .progress-track {
             height: 5px;
@@ -1461,7 +1462,10 @@
     function toggleHistory(id) {
         if (wasDragging) return;
         const el = document.getElementById('hist-' + id);
-        el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        const card = el.closest('.debt-card');
+        const isOpen = el.style.display === 'block';
+        el.style.display = isOpen ? 'none' : 'block';
+        if (card) card.classList.toggle('card-open', !isOpen);
     }
 
     function parseDate(str) {
