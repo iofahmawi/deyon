@@ -2154,8 +2154,8 @@
 
                     <div class="progress-section">
                         <div style="display:flex;justify-content:space-between;font-size:0.7rem;font-weight:700;margin-bottom:5px;">
+                            ${d.note ? `<span style="color:var(--text-muted);font-weight:700;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.note}</span>` : '<span></span>'}
                             <span style="color:var(--primary);font-weight:700">${pct}% مسدّد</span>
-                            <span style="color:var(--text-muted);font-weight:700">من أصل ${d.original.toLocaleString()}</span>
                         </div>
                         <div class="progress-track">
                             <div class="progress-fill ${done ? 'done' : ''}" style="width:${pct}%"></div>
