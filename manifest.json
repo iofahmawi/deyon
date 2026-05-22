@@ -4,7 +4,7 @@
   "description": "تطبيق لإدارة الديون",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f0f4f8",
+  "background_color": "#ffffff",
   "theme_color": "#f0f4f8",
   "orientation": "portrait",
   "lang": "ar",
