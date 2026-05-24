@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deyon-v138';
+const CACHE_NAME = 'deyon-v139';
 const ASSETS = [
     './',
     './index.html',
